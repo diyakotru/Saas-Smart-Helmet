@@ -6,81 +6,10 @@ export default function HomePage() {
   const [hoveredSensor, setHoveredSensor] = useState(null);
 
   const sensors = [
-    {
-  id: "helmet-light",
-  name: "Mining Safety Light",
-  icon: "🔴"
-},
+    { id: "helmet-light", name: "Mining Safety Light", icon: "🔴" },
     { id: "gas-detector", name: "Gas Detector (MQ-X)", icon: "💨" },
     { id: "temperature", name: "Temperature/Humidity", icon: "🌡️" },
-  //  { id: "led-indicator", name: "LED Indicator", icon: "💡" },
     { id: "buzzer", name: "Buzzer/Audio Alert", icon: "🔔" },
-  ];
-
-  const highlightStats = [
-    { label: "Active Helmets", value: "1,240+" },
-    { label: "Incidents Prevented", value: "98.2%" },
-    { label: "Avg. Response Time", value: "4.6s" },
-    { label: "Sites Monitored", value: "27" },
-  ];
-
-  const platformFeatures = [
-    {
-      title: "Real-time Hazard Detection",
-      desc: "Live gas, temperature, and motion signals with alerts routed to supervisors in seconds.",
-    },
-    {
-      title: "Predictive Safety Insights",
-      desc: "Trend analysis flags rising risk zones before they become incidents.",
-    },
-    {
-      title: "Location-aware Escalation",
-      desc: "Auto-escalates critical alerts to the nearest response team with precise location cues.",
-    },
-    {
-      title: "Compliance-ready Reporting",
-      desc: "Audit-friendly logs, exports, and retention controls aligned with safety regulations.",
-    },
-  ];
-
-  const workflowSteps = [
-    {
-      step: "01",
-      title: "Deploy Helmets",
-      desc: "Issue smart helmets and connect them to your site gateway in minutes.",
-    },
-    {
-      step: "02",
-      title: "Monitor Live Signals",
-      desc: "Supervisors track risk levels and location status from a single dashboard.",
-    },
-    {
-      step: "03",
-      title: "Respond Instantly",
-      desc: "Escalate alerts with automated workflows and confirm resolution on-site.",
-    },
-    {
-      step: "04",
-      title: "Review & Optimize",
-      desc: "Use safety analytics to improve protocols and reduce incidents over time.",
-    },
-  ];
-
-  const testimonials = [
-    {
-      quote:
-        "We reduced response time by over 60% in our first month. The live alerts are a game-changer.",
-      name: "Anita Verma",
-      role: "Safety Operations Lead",
-      company: "DeepRock Mining",
-    },
-    {
-      quote:
-        "The audit trail and incident exports saved us days of reporting every quarter.",
-      name: "Marco Luis",
-      role: "Compliance Manager",
-      company: "North Ridge Minerals",
-    },
   ];
 
   const getCurrentSensorDetails = (id) => {
@@ -92,7 +21,6 @@ export default function HomePage() {
           value: "Red LED On",
           desc: "High-visibility red helmet light ensuring worker safety in low-light mining zones.",
         };
-
       case "gas-detector":
         return {
           tag: "Environment",
@@ -107,13 +35,6 @@ export default function HomePage() {
           value: "28°C / 65% RH",
           desc: "Tracks environmental temperature and humidity to alert for heat stress or extreme cold conditions.",
         };
-      //case "led-indicator":
-      //  return {
-      //    tag: "Visual Alert",
-      //    status: "Green",
-      //    value: "System OK",
-      //    desc: "Visual status light on the helmet for quick, on-site status indication to supervisors.",
-      //  };
       case "buzzer":
         return {
           tag: "Audio Alert",
@@ -129,334 +50,461 @@ export default function HomePage() {
   const currentDetails = getCurrentSensorDetails(hoveredSensor);
 
   const getStatusClasses = (status) => {
-    if (status === "Safe" || status === "Normal" || status === "Green") {
-      return "bg-teal-600/20 text-teal-400";
+    if (status === "Safe" || status === "Normal") {
+      return "bg-emerald-600/20 text-emerald-400 border-emerald-600/30";
     } else if (status === "Standby") {
-      return "bg-gray-600/20 text-gray-400";
+      return "bg-gray-600/20 text-gray-400 border-gray-600/30";
     } else {
-      return "bg-yellow-600/20 text-yellow-400";
+      return "bg-yellow-600/20 text-yellow-400 border-yellow-600/30";
     }
   };
 
   return (
-    <main className="min-h-screen bg-black text-gray-100 font-sans relative overflow-hidden">
+    <main className="min-h-screen bg-gradient-to-b from-gray-950 to-black text-gray-100 font-sans">
 
-      {/* Ambient background accents */}
-      <div className="pointer-events-none absolute -top-24 -left-24 h-80 w-80 rounded-full bg-yellow-500/10 blur-3xl" />
-      <div className="pointer-events-none absolute -bottom-32 -right-20 h-96 w-96 rounded-full bg-amber-500/10 blur-3xl" />
-
-      {/* 🔥 UPDATED NAVBAR WITH NEW OPTIONS */}
-      <header className="border-b border-gray-800 backdrop-blur-sm bg-black/80 sticky top-0 z-10 shadow-md shadow-yellow-900/10">
-        <nav className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center animate-fade-in">
-          
-          {/* Left Logo */}
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-yellow-500 rounded flex items-center justify-center font-extrabold text-black text-lg transform hover:scale-110 transition duration-300">
-              SC
+      {/* Navigation */}
+      <header className="border-b border-gray-800 backdrop-blur-xl bg-black/80 sticky top-0 z-50">
+        <nav className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+          {/* Logo */}
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-gradient-to-br from-yellow-500 to-amber-600 rounded-xl flex items-center justify-center font-extrabold text-black text-lg">
+              🛡️
             </div>
-            <span className="font-extrabold text-xl text-white tracking-wider">SMART-CAP</span>
+            <div>
+              <span className="font-extrabold text-xl bg-gradient-to-r from-yellow-400 to-amber-500 bg-clip-text text-transparent">
+                SmartMine Guard
+              </span>
+              <div className="text-xs text-gray-400 -mt-1">Safety Intelligence Platform</div>
+            </div>
           </div>
 
-          {/* Right Navigation Buttons */}
-          <div className="flex gap-4 flex-wrap">
-
+          {/* Navigation Links */}
+          <div className="flex gap-4">
             <Link
               to="/dashboard"
-              className="px-4 py-2 border border-yellow-500 text-yellow-400 rounded-lg hover:bg-yellow-900/50 transition font-medium transform hover:scale-105 duration-300"
+              className="px-5 py-2.5 border border-gray-700 text-gray-300 hover:border-yellow-500 hover:text-white rounded-lg transition-all duration-300"
             >
               Dashboard
             </Link>
-
             <Link
-              to="/workers"
-              className="px-4 py-2 border border-yellow-500 text-yellow-400 rounded-lg hover:bg-yellow-900/50 transition font-medium transform hover:scale-105 duration-300"
+              to="/demo"
+              className="px-5 py-2.5 bg-gradient-to-r from-yellow-500 to-amber-600 text-black font-bold rounded-lg hover:from-yellow-600 hover:to-amber-700 transition-all duration-300 shadow-lg shadow-yellow-500/20"
             >
-              Workers Overview
+              Request Demo
             </Link>
-
-            <Link
-              to="/settings"
-              className="px-4 py-2 border border-yellow-600 text-yellow-400 rounded-lg hover:bg-yellow-900/50 transition font-medium transform hover:scale-105 duration-300"
-            >
-              Settings
-            </Link>
-
-            <Link
-              to="/database"
-              className="px-4 py-2 bg-gradient-to-r from-yellow-500 to-yellow-600 text-black rounded-lg hover:from-yellow-600 hover:to-yellow-700 transition font-medium shadow-lg shadow-yellow-500/30 transform hover:scale-105 duration-300"
-            >
-              Data Archive
-            </Link>
-
           </div>
-
         </nav>
       </header>
 
       {/* Hero Section */}
-      <section className="max-w-7xl mx-auto px-4 py-20 animate-fade-in-up">
-        <div className="text-center mb-16">
-          <h1 className="text-5xl md:text-6xl font-extrabold mb-4 text-white animate-fade-in-down">
-            IoT-Enabled {" "}
-            <span className="bg-clip-text text-transparent bg-gradient-to-r from-yellow-400 to-yellow-600">
-              S<span className="text-white">mart</span> Miner Safety Helmet
+      <section className="max-w-7xl mx-auto px-6 py-20 md:py-28">
+        <div className="text-center mb-20">
+          <div className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-yellow-500/20 to-amber-600/20 border border-yellow-500/30 px-5 py-2.5 mb-8">
+            <span className="text-yellow-300">⚡</span>
+            <span className="text-sm font-semibold text-yellow-300 tracking-wider">
+              ENTERPRISE SAFETY INTELLIGENCE
+            </span>
+          </div>
+          
+          <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight">
+            Transform Workplace Safety
+            <br />
+            <span className="bg-gradient-to-r from-yellow-300 via-amber-400 to-yellow-300 bg-clip-text text-transparent">
+              With Real-Time Intelligence
             </span>
           </h1>
-          <p className="text-xl text-gray-400 max-w-3xl mx-auto mb-8 animate-fade-in-up-delay">
-            Real-time sensor data visualization system for enhanced worker safety and environmental hazard detection.
+          
+          <p className="text-xl text-gray-400 max-w-3xl mx-auto mb-10 leading-relaxed">
+            SmartMine Guard is the cloud-powered safety platform that gives mining and industrial companies 
+            real-time visibility, instant alerts, and data-driven insights to protect workers and ensure compliance.
           </p>
+          
+          <div className="flex flex-wrap justify-center gap-4">
+            <Link
+              to="/demo"
+              className="px-8 py-4 bg-gradient-to-r from-yellow-500 to-amber-600 hover:from-yellow-600 hover:to-amber-700 text-black font-bold rounded-xl transition-all duration-300 transform hover:scale-105 shadow-xl shadow-yellow-500/30 hover:shadow-yellow-500/50 flex items-center gap-3 group text-lg"
+            >
+              Request Demo
+            </Link>
+            <Link
+              to="/features"
+              className="px-8 py-4 bg-gray-900/50 hover:bg-gray-800 border-2 border-gray-700 hover:border-yellow-500/50 text-white font-bold rounded-xl transition-all duration-300 transform hover:scale-105 flex items-center gap-3 group text-lg"
+            >
+              See How It Works
+            </Link>
+          </div>
         </div>
 
-        {/* Sensors + Helmet Image */}
-        <div className="grid lg:grid-cols-3 gap-12 items-start">
-          {/* Left: Sensor Legend */}
-          <div className="space-y-4 animate-slide-in-left">
-            <h3 className="font-bold text-xl text-yellow-400 border-b border-gray-800 pb-2 mb-4">
-              Sensor Components
-            </h3>
-            {sensors.map((sensor) => (
-              <button
-                key={sensor.id}
-                onMouseEnter={() => setHoveredSensor(sensor.id)}
-                onMouseLeave={() => setHoveredSensor(null)}
-                className={`w-full p-4 rounded-xl text-left border transition-all shadow-lg ${
-                  hoveredSensor === sensor.id
-                    ? "bg-yellow-900/30 border-yellow-600 text-white transform scale-[1.02] duration-150"
-                    : "bg-gray-900 border-gray-800 text-gray-300 hover:bg-gray-800"
-                } transform hover:scale-[1.01] duration-200`}
-              >
-                <div className="font-semibold text-lg flex items-center gap-2">
-                  <span className="text-2xl">{sensor.icon}</span>
-                  {sensor.name}
+        {/* Product Visualization */}
+        <div className="grid lg:grid-cols-3 gap-8 mb-24">
+          {/* Sensors List */}
+          <div className="space-y-4">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-2 h-8 bg-gradient-to-b from-yellow-500 to-amber-600 rounded-full"></div>
+              <h3 className="text-2xl font-bold text-white">Sensor Technology</h3>
+            </div>
+            
+            <div className="space-y-3">
+              {sensors.map((sensor) => (
+                <button
+                  key={sensor.id}
+                  onMouseEnter={() => setHoveredSensor(sensor.id)}
+                  onMouseLeave={() => setHoveredSensor(null)}
+                  className={`w-full p-5 rounded-2xl text-left transition-all duration-300 border backdrop-blur-sm group ${
+                    hoveredSensor === sensor.id
+                      ? "bg-yellow-900/30 border-yellow-600 border-2 transform scale-[1.02] shadow-xl"
+                      : "bg-gray-900/50 border-gray-800 hover:bg-gray-800/50"
+                  }`}
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                      <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-2xl ${
+                        hoveredSensor === sensor.id ? 'bg-yellow-500/20' : 'bg-gray-800/50'
+                      }`}>
+                        {sensor.icon}
+                      </div>
+                      <div>
+                        <h4 className="font-semibold text-white group-hover:text-yellow-300 transition-colors">
+                          {sensor.name}
+                        </h4>
+                        <div className="text-xs text-gray-400 mt-1">
+                          {hoveredSensor === sensor.id ? "Live data available →" : "Hover for details"}
+                        </div>
+                      </div>
+                    </div>
+                    <div className={`w-3 h-3 rounded-full ${
+                      sensor.id === "helmet-light" ? "bg-red-500 animate-pulse" :
+                      sensor.id === "gas-detector" ? "bg-emerald-500" :
+                      sensor.id === "temperature" ? "bg-orange-500" :
+                      "bg-purple-500"
+                    }`}></div>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Helmet Visualization */}
+          <div className="lg:col-span-1 flex justify-center items-center relative">
+            <div className="relative">
+              <div className="absolute inset-0 bg-gradient-to-r from-yellow-500/20 to-amber-600/20 rounded-3xl blur-2xl -z-10 animate-pulse"></div>
+              <div className="relative bg-gradient-to-br from-gray-900 to-black rounded-3xl p-8 border-2 border-gray-800 shadow-2xl">
+                <img
+                  src={HelmetImage}
+                  alt="Smart Helmet"
+                  className="w-full max-w-sm object-contain transform hover:scale-105 transition-transform duration-500"
+                />
+                <div className="absolute -bottom-3 left-1/2 transform -translate-x-1/2">
+                  <div className="flex items-center gap-2 bg-gray-900 border-2 border-emerald-500/50 rounded-full px-4 py-2 backdrop-blur-sm">
+                    <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
+                    <span className="text-sm font-semibold text-emerald-300">All Systems Operational</span>
+                  </div>
                 </div>
-              </button>
-            ))}
+              </div>
+            </div>
           </div>
 
-          {/* Center: Helmet Image */}
-          <div className="lg:col-span-1 flex justify-center w-full min-h-[500px] animate-fade-in-zoom">
-            <img
-              src={HelmetImage}
-              alt="Smart Helmet"
-              className="w-full max-w-sm object-contain rounded-xl shadow-xl shadow-yellow-500/10 transform hover:scale-105 transition duration-300"
-            />
-          </div>
-
-          {/* Right: Sensor Details */}
-          <div className="space-y-4 animate-slide-in-right">
-            <h3 className="font-bold text-xl text-yellow-400 border-b border-gray-800 pb-2 mb-4">
-              Live Sensor Details
-            </h3>
+          {/* Sensor Details Panel */}
+          <div className="space-y-4">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-2 h-8 bg-gradient-to-b from-blue-500 to-cyan-600 rounded-full"></div>
+              <h3 className="text-2xl font-bold text-white">Live Sensor Data</h3>
+            </div>
+            
             {currentDetails ? (
-              <div className="p-6 rounded-xl bg-gray-900 border border-yellow-600 shadow-xl shadow-yellow-500/20 space-y-4 animate-scale-in">
-                <div className="flex justify-between items-center">
-                  <div className="inline-block px-3 py-1 rounded-full bg-gradient-to-r from-yellow-500 to-amber-600 text-black text-sm font-semibold uppercase tracking-wider">
-                    {currentDetails.tag}
+              <div className="bg-gradient-to-br from-gray-900/80 to-gray-950/80 rounded-3xl p-6 border-2 border-gray-800 shadow-2xl backdrop-blur-sm animate-in slide-in-from-right-10 duration-300">
+                <div className="flex items-center justify-between mb-6">
+                  <div className="px-4 py-2 rounded-full bg-gradient-to-r from-gray-800 to-gray-900 border border-gray-700">
+                    <span className="text-sm font-semibold text-gray-300">{currentDetails.tag}</span>
                   </div>
-                  <div
-                    className={`px-3 py-1 rounded-full text-xs font-bold uppercase ${getStatusClasses(currentDetails.status)}`}
-                  >
-                    {currentDetails.status}
+                  <div className={`px-4 py-2 rounded-full border ${getStatusClasses(currentDetails.status)}`}>
+                    <span className="text-sm font-bold">{currentDetails.status}</span>
                   </div>
                 </div>
-                <h4 className="text-3xl font-extrabold text-yellow-400">{currentDetails.value}</h4>
-                <p className="text-gray-400 leading-relaxed text-sm">{currentDetails.desc}</p>
-                <div className="mt-4 pt-4 border-t border-gray-800">
-                  <span className="text-yellow-400 text-sm font-semibold">Sensor ID:</span>{" "}
-                  <span className="text-gray-400 text-sm">{hoveredSensor}</span>
+                
+                <div className="mb-6">
+                  <div className="text-sm text-gray-400 mb-2">Current Reading</div>
+                  <div className="text-4xl font-bold text-white">{currentDetails.value}</div>
+                </div>
+                
+                <p className="text-gray-400 leading-relaxed mb-6">{currentDetails.desc}</p>
+                
+                <div className="pt-6 border-t border-gray-800">
+                  <div className="text-sm text-gray-400 mb-2">Sensor Details</div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-300 font-mono">{hoveredSensor}</span>
+                    <span className="text-emerald-400 text-sm font-semibold flex items-center gap-1">
+                      ✅ Active
+                    </span>
+                  </div>
                 </div>
               </div>
             ) : (
-              <div className="p-6 rounded-xl bg-gray-900 border border-gray-800 text-gray-500 text-center animate-pulse-subtle">
-                <p>Hover over a sensor on the left to see its live details and location on the helmet.</p>
+              <div className="h-full flex flex-col items-center justify-center bg-gradient-to-br from-gray-900/50 to-gray-950/50 rounded-3xl p-8 border-2 border-dashed border-gray-800 text-center">
+                <div className="w-16 h-16 rounded-full bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700 flex items-center justify-center mb-4">
+                  📈
+                </div>
+                <h4 className="text-xl font-semibold text-gray-300 mb-2">Select a Sensor</h4>
+                <p className="text-gray-500">Hover over any sensor module to view live data</p>
               </div>
             )}
           </div>
         </div>
 
-        {/* Highlight Stats */}
-        <div className="mt-20 grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {highlightStats.map((stat) => (
-            <div
-              key={stat.label}
-              className="rounded-2xl border border-gray-800 bg-gradient-to-b from-gray-900 to-black px-6 py-6 shadow-lg shadow-yellow-500/10"
-            >
-              <div className="text-3xl font-extrabold text-yellow-400">{stat.value}</div>
-              <div className="text-sm text-gray-400 mt-2 uppercase tracking-wider">{stat.label}</div>
-            </div>
-          ))}
-        </div>
-
-        {/* Platform Value */}
-        <div className="mt-24 grid lg:grid-cols-2 gap-10 items-center">
-          <div className="space-y-5">
-            <p className="text-sm uppercase tracking-[0.3em] text-yellow-400">Platform Advantage</p>
-            <h2 className="text-4xl font-extrabold text-white">
-              A unified safety command center built for high-risk sites
+        {/* Problem Statement */}
+        <div className="mb-24">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
+              The <span className="text-yellow-400">Safety Challenges</span> You Face
             </h2>
-            <p className="text-gray-400 leading-relaxed">
-              SMART-CAP brings sensor intelligence, response coordination, and compliance reporting into one
-              experience. Supervisors see what is happening now, what is likely to happen next, and what actions
-              were taken.
-            </p>
-            <div className="flex flex-wrap gap-4">
-              <div className="px-4 py-2 rounded-full border border-yellow-500/40 text-yellow-300 text-sm">
-                24/7 Monitoring
-              </div>
-              <div className="px-4 py-2 rounded-full border border-yellow-500/40 text-yellow-300 text-sm">
-                Incident Workflows
-              </div>
-              <div className="px-4 py-2 rounded-full border border-yellow-500/40 text-yellow-300 text-sm">
-                Export-ready Reports
-              </div>
-            </div>
-          </div>
-          <div className="rounded-2xl border border-gray-800 bg-gray-900/70 p-8 shadow-xl shadow-yellow-500/10">
-            <h3 className="text-xl font-semibold text-white">Operations Snapshot</h3>
-            <div className="mt-6 space-y-4">
-              <div className="flex items-center justify-between text-sm text-gray-400">
-                <span>Live Helmets Online</span>
-                <span className="text-yellow-400 font-semibold">1,214</span>
-              </div>
-              <div className="h-2 rounded-full bg-gray-800">
-                <div className="h-2 rounded-full bg-gradient-to-r from-yellow-500 to-amber-600" style={{ width: "82%" }} />
-              </div>
-              <div className="flex items-center justify-between text-sm text-gray-400">
-                <span>Risk Alerts Today</span>
-                <span className="text-yellow-400 font-semibold">12</span>
-              </div>
-              <div className="h-2 rounded-full bg-gray-800">
-                <div className="h-2 rounded-full bg-gradient-to-r from-yellow-500 to-amber-600" style={{ width: "24%" }} />
-              </div>
-              <div className="flex items-center justify-between text-sm text-gray-400">
-                <span>Resolved in &lt; 5 min</span>
-                <span className="text-yellow-400 font-semibold">91%</span>
-              </div>
-              <div className="h-2 rounded-full bg-gray-800">
-                <div className="h-2 rounded-full bg-gradient-to-r from-yellow-500 to-amber-600" style={{ width: "91%" }} />
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Feature Grid */}
-        <div className="mt-24">
-          <div className="text-center max-w-3xl mx-auto">
-            <p className="text-sm uppercase tracking-[0.3em] text-yellow-400">Core Capabilities</p>
-            <h2 className="text-4xl font-extrabold text-white mt-4">Everything needed to prevent incidents</h2>
-            <p className="text-gray-400 mt-4">
-              Designed for mining operations where every second matters and every decision is audited.
+            <p className="text-gray-400 text-lg max-w-2xl mx-auto">
+              Today's industrial environments demand more than traditional safety measures.
             </p>
           </div>
-          <div className="mt-12 grid md:grid-cols-2 gap-6">
-            {platformFeatures.map((feature) => (
-              <div
-                key={feature.title}
-                className="rounded-2xl border border-gray-800 bg-gray-900/70 p-6 shadow-lg shadow-yellow-500/10"
-              >
-                <h3 className="text-xl font-semibold text-white">{feature.title}</h3>
-                <p className="text-gray-400 mt-3 leading-relaxed">{feature.desc}</p>
+          
+          <div className="grid md:grid-cols-3 gap-8">
+            {[
+              {
+                title: "Limited Real-Time Visibility",
+                description: "Supervisors can't see what's happening in tunnels or remote zones until it's too late.",
+                icon: ""
+              },
+              {
+                title: "Delayed Emergency Response",
+                description: "Critical incidents often go unnoticed, losing precious response time.",
+                icon: ""
+              },
+              {
+                title: "Compliance Burden",
+                description: "Manual logs and fragmented data make regulatory compliance time-consuming.",
+                icon: ""
+              }
+            ].map((problem, index) => (
+              <div key={index} className="bg-gray-900/50 rounded-2xl p-8 border border-gray-800 hover:border-yellow-500/30 transition-colors duration-300">
+                <div className="text-3xl mb-6">{problem.icon}</div>
+                <h3 className="text-2xl font-bold text-white mb-4">{problem.title}</h3>
+                <p className="text-gray-400">{problem.description}</p>
               </div>
             ))}
           </div>
         </div>
 
-        {/* Workflow */}
-        <div className="mt-24 rounded-3xl border border-gray-800 bg-gradient-to-br from-gray-900/80 to-black p-10">
-          <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6">
+        {/* Solution Overview */}
+        <div className="mb-24">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
+              Cloud-Powered <span className="text-cyan-300">Safety Intelligence</span>
+            </h2>
+            <p className="text-gray-400 text-lg max-w-2xl mx-auto">
+              From reactive response to proactive protection with real-time monitoring.
+            </p>
+          </div>
+          
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div>
-              <p className="text-sm uppercase tracking-[0.3em] text-yellow-400">How It Works</p>
-              <h2 className="text-4xl font-extrabold text-white mt-4">A clear safety workflow for every shift</h2>
+              <p className="text-gray-400 text-lg mb-8 leading-relaxed">
+                SmartMine Guard transforms safety management with our SaaS platform that connects IoT-enabled 
+                helmets to a centralized cloud dashboard. Safety teams get real-time visibility, 
+                instant alerts, and predictive insights all accessible from any device.
+              </p>
+              <ul className="space-y-4 mb-8">
+                {[
+                  "Cloud-based monitoring dashboard",
+                  "Real-time mobile alerts",
+                  "Predictive analytics engine",
+                  "Enterprise-grade security",
+                  "Scalable for any operation size",
+                  "Automated compliance reporting"
+                ].map((item, index) => (
+                  <li key={index} className="flex items-center gap-3 text-gray-300">
+                    <span className="text-emerald-400">✓</span>
+                    {item}
+                  </li>
+                ))}
+              </ul>
             </div>
-            <p className="text-gray-400 max-w-xl">
-              From deployment to post-incident review, SMART-CAP keeps teams aligned with operational protocols.
-            </p>
-          </div>
-          <div className="mt-10 grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {workflowSteps.map((step) => (
-              <div key={step.step} className="rounded-2xl border border-gray-800 bg-black/40 p-6">
-                <div className="text-yellow-400 text-sm font-semibold">{step.step}</div>
-                <h3 className="text-lg font-semibold text-white mt-3">{step.title}</h3>
-                <p className="text-gray-400 mt-2 text-sm leading-relaxed">{step.desc}</p>
+            
+            <div className="bg-gradient-to-br from-gray-900 to-black rounded-2xl border-2 border-gray-800 p-8 shadow-2xl">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
+                <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
+                <div className="w-3 h-3 bg-emerald-500 rounded-full"></div>
+                <span className="text-gray-400 text-sm ml-auto">Live Dashboard Preview</span>
               </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Testimonials */}
-        <div className="mt-24 grid lg:grid-cols-3 gap-8 items-start">
-          <div className="lg:col-span-1 space-y-4">
-            <p className="text-sm uppercase tracking-[0.3em] text-yellow-400">Field Feedback</p>
-            <h2 className="text-4xl font-extrabold text-white">Trusted by safety teams</h2>
-            <p className="text-gray-400">
-              Teams across multi-site operations rely on SMART-CAP to standardize safety response.
-            </p>
-          </div>
-          <div className="lg:col-span-2 grid md:grid-cols-2 gap-6">
-            {testimonials.map((item) => (
-              <div key={item.name} className="rounded-2xl border border-gray-800 bg-gray-900/70 p-6">
-                <p className="text-gray-300 leading-relaxed">"{item.quote}"</p>
-                <div className="mt-6">
-                  <div className="text-white font-semibold">{item.name}</div>
-                  <div className="text-sm text-gray-400">
-                    {item.role} · {item.company}
-                  </div>
+              
+              <div className="grid grid-cols-3 gap-4 mb-6">
+                <div className="bg-gray-800/50 rounded-lg p-4">
+                  <div className="text-2xl font-bold text-emerald-400">142</div>
+                  <div className="text-xs text-gray-400">Active Helmets</div>
+                </div>
+                <div className="bg-gray-800/50 rounded-lg p-4">
+                  <div className="text-2xl font-bold text-yellow-400">3</div>
+                  <div className="text-xs text-gray-400">Active Alerts</div>
+                </div>
+                <div className="bg-gray-800/50 rounded-lg p-4">
+                  <div className="text-2xl font-bold text-cyan-400">100%</div>
+                  <div className="text-xs text-gray-400">Compliance</div>
                 </div>
               </div>
+              
+              <div className="space-y-3">
+                <div className="flex items-center gap-3 p-3 bg-red-900/20 border border-red-800/50 rounded-lg">
+                  <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+                  <span className="text-sm text-white">Elevated CO detected in Zone B</span>
+                  <span className="text-xs text-gray-400 ml-auto">2 min ago</span>
+                </div>
+                <div className="flex items-center gap-3 p-3 bg-yellow-900/20 border border-yellow-800/50 rounded-lg">
+                  <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
+                  <span className="text-sm text-white">Heat stress risk in Tunnel 4</span>
+                  <span className="text-xs text-gray-400 ml-auto">15 min ago</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Key Features */}
+        <div className="mb-24">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
+              Everything You Need in One <span className="text-yellow-400">Safety Platform</span>
+            </h2>
+            <p className="text-gray-400 text-lg max-w-2xl mx-auto">
+              Built for enterprise-scale operations with security, scalability, and simplicity at its core.
+            </p>
+          </div>
+          
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {[
+              {
+                title: "Real-Time Hazard Detection",
+                description: "Monitor gas levels, temperature, and motion anomalies with instant alerts to response teams.",
+                icon: "🚨",
+                color: "from-red-500/20 to-orange-600/20"
+              },
+              {
+                title: "Live Worker Monitoring",
+                description: "Track worker location, vitals, and safety status across multiple sites from one dashboard.",
+                icon: "👷",
+                color: "from-blue-500/20 to-cyan-600/20"
+              },
+              {
+                title: "Centralized Command Dashboard",
+                description: "Unified view of all operations with customizable widgets, alerts, and reporting.",
+                icon: "📊",
+                color: "from-yellow-500/20 to-amber-600/20"
+              },
+              {
+                title: "Predictive Analytics",
+                description: "AI-powered insights identify risk patterns before incidents occur.",
+                icon: "🧠",
+                color: "from-purple-500/20 to-violet-600/20"
+              },
+              {
+                title: "Automated Compliance",
+                description: "Generate audit-ready reports and maintain digital safety logs automatically.",
+                icon: "📑",
+                color: "from-emerald-500/20 to-green-600/20"
+              },
+              {
+                title: "Multi-Site Scalability",
+                description: "Manage hundreds or thousands of helmets across multiple locations from one platform.",
+                icon: "🌐",
+                color: "from-cyan-500/20 to-blue-600/20"
+              }
+            ].map((feature, index) => (
+              <div 
+                key={index}
+                className="bg-gray-900/50 rounded-2xl p-8 border border-gray-800 hover:border-yellow-500/30 transition-all duration-300"
+              >
+                <div className={`w-16 h-16 rounded-xl bg-gradient-to-br ${feature.color} flex items-center justify-center text-2xl mb-6`}>
+                  {feature.icon}
+                </div>
+                <h3 className="text-2xl font-bold text-white mb-4">{feature.title}</h3>
+                <p className="text-gray-400">{feature.description}</p>
+              </div>
             ))}
           </div>
         </div>
 
-        {/* FAQ */}
-        <div className="mt-24 grid lg:grid-cols-2 gap-10">
-          <div>
-            <p className="text-sm uppercase tracking-[0.3em] text-yellow-400">FAQ</p>
-            <h2 className="text-4xl font-extrabold text-white mt-4">Built for rapid deployment</h2>
-            <p className="text-gray-400 mt-4">
-              Roll out across new sites without redesigning infrastructure.
-            </p>
-          </div>
-          <div className="space-y-4">
-            <div className="rounded-2xl border border-gray-800 bg-gray-900/70 p-6">
-              <h3 className="text-white font-semibold">Does it work offline in tunnels?</h3>
-              <p className="text-gray-400 mt-2">
-                Yes. Helmets store readings locally and sync once the gateway reconnects.
-              </p>
-            </div>
-            <div className="rounded-2xl border border-gray-800 bg-gray-900/70 p-6">
-              <h3 className="text-white font-semibold">How long is battery life?</h3>
-              <p className="text-gray-400 mt-2">
-                A standard shift coverage of 14+ hours with fast swap packs.
-              </p>
-            </div>
-            <div className="rounded-2xl border border-gray-800 bg-gray-900/70 p-6">
-              <h3 className="text-white font-semibold">Can we export safety logs?</h3>
-              <p className="text-gray-400 mt-2">
-                Yes. Export CSV, PDF, and API feeds for compliance reporting.
-              </p>
-            </div>
-          </div>
-        </div>
 
-        {/* CTA Section */}
-        <div className="mt-24 text-center space-y-4 animate-fade-in-up-delay-more">
-          <p className="text-gray-400 text-lg">Ready to review the safety log?</p>
-          <div className="flex gap-4 justify-center flex-wrap">
+
+        {/* Final CTA */}
+        <div className="rounded-3xl border-2 border-yellow-500/30 bg-gradient-to-br from-gray-900/90 to-black/90 p-12 text-center">
+          <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+            Ready to Transform Your Safety Operations?
+          </h2>
+          <p className="text-gray-300 text-lg mb-8 max-w-2xl mx-auto">
+            Join leading mining and industrial companies using SmartMine Guard to protect their workforce and improve safety compliance.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
-              to="/dashboard"
-              className="px-8 py-3 bg-gradient-to-r from-yellow-500 to-amber-600 text-black rounded-lg hover:from-yellow-600 hover:to-amber-700 transition shadow-lg shadow-yellow-500/40 font-bold text-lg transform hover:scale-105 duration-300"
+              to="/demo"
+              className="px-10 py-4 bg-gradient-to-r from-yellow-500 to-amber-600 hover:from-yellow-600 hover:to-amber-700 text-black font-bold rounded-xl transition-all duration-300 transform hover:scale-105 shadow-xl shadow-yellow-500/30"
             >
-              View Live Dashboard
+              Request a Demo
             </Link>
             <Link
-              to="/database"
-              className="px-8 py-3 border border-yellow-500 text-yellow-400 rounded-lg hover:bg-yellow-900/50 transition font-bold text-lg transform hover:scale-105 duration-300"
+              to="/contact"
+              className="px-10 py-4 bg-transparent hover:bg-gray-800 border-2 border-gray-700 hover:border-yellow-500/50 text-white font-bold rounded-xl transition-all duration-300 transform hover:scale-105"
             >
-              Access Historical Data
+              Talk to Sales
             </Link>
           </div>
         </div>
       </section>
+
+      {/* Footer */}
+      <footer className="border-t border-gray-800/50 bg-black/50 py-12">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="grid md:grid-cols-4 gap-8 mb-8">
+            <div>
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-8 h-8 bg-gradient-to-br from-yellow-500 to-amber-600 rounded-lg flex items-center justify-center">
+                  🛡️
+                </div>
+                <span className="font-bold text-white">SmartMine Guard</span>
+              </div>
+              <p className="text-gray-400 text-sm">
+                Enterprise safety intelligence platform for mining and heavy industries.
+              </p>
+            </div>
+            
+            {[
+              {
+                title: "Product",
+                links: ["Features", "Pricing", "API", "Security", "Compliance"]
+              },
+              {
+                title: "Resources",
+                links: ["Documentation", "Case Studies", "Blog", "Help Center"]
+              },
+              {
+                title: "Company",
+                links: ["About", "Careers", "Contact", "Partners"]
+              }
+            ].map((section, idx) => (
+              <div key={idx}>
+                <h4 className="text-white font-semibold mb-4">{section.title}</h4>
+                <ul className="space-y-2">
+                  {section.links.map((link, linkIdx) => (
+                    <li key={linkIdx}>
+                      <a href="#" className="text-gray-400 hover:text-yellow-400 text-sm transition-colors">
+                        {link}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+          
+          <div className="text-center text-gray-500 text-sm pt-8 border-t border-gray-800/30">
+            <p>© {new Date().getFullYear()} SmartMine Guard Safety Systems. All rights reserved.</p>
+            <p className="mt-2">Protecting workers worldwide with intelligent safety solutions.</p>
+          </div>
+        </div>
+      </footer>
     </main>
   );
 }
