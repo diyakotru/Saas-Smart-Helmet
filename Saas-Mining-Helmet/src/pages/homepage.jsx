@@ -87,7 +87,7 @@ export default function HomePage() {
               Dashboard
             </Link>
             <Link
-              to="/demo"
+              to="/workers"
               className="px-5 py-2.5 bg-gradient-to-r from-yellow-500 to-amber-600 text-black font-bold rounded-lg hover:from-yellow-600 hover:to-amber-700 transition-all duration-300 shadow-lg shadow-yellow-500/20"
             >
               Request Demo
@@ -121,7 +121,7 @@ export default function HomePage() {
           
           <div className="flex flex-wrap justify-center gap-4">
             <Link
-              to="/demo"
+              to="/workers"
               className="px-8 py-4 bg-gradient-to-r from-yellow-500 to-amber-600 hover:from-yellow-600 hover:to-amber-700 text-black font-bold rounded-xl transition-all duration-300 transform hover:scale-105 shadow-xl shadow-yellow-500/30 hover:shadow-yellow-500/50 flex items-center gap-3 group text-lg"
             >
               Request Demo
@@ -439,7 +439,7 @@ export default function HomePage() {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
-              to="/demo"
+              to="/workers"
               className="px-10 py-4 bg-gradient-to-r from-yellow-500 to-amber-600 hover:from-yellow-600 hover:to-amber-700 text-black font-bold rounded-xl transition-all duration-300 transform hover:scale-105 shadow-xl shadow-yellow-500/30"
             >
               Request a Demo
