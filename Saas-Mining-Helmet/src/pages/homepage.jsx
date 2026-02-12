@@ -87,10 +87,16 @@ export default function HomePage() {
               Dashboard
             </Link>
             <Link
+              to="/analytics"
+              className="px-5 py-2.5 border border-gray-700 text-gray-300 hover:border-yellow-500 hover:text-white rounded-lg transition-all duration-300"
+            >
+              Analytics
+            </Link>
+            <Link
               to="/workers"
               className="px-5 py-2.5 bg-gradient-to-r from-yellow-500 to-amber-600 text-black font-bold rounded-lg hover:from-yellow-600 hover:to-amber-700 transition-all duration-300 shadow-lg shadow-yellow-500/20"
             >
-              Request Demo
+              Workers Profile
             </Link>
           </div>
         </nav>
