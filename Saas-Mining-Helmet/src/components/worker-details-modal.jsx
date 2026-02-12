@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { Card } from "./ui/card";
 import { Button } from "./ui/button";
 
@@ -161,9 +162,14 @@ export default function WorkerDetailsModal({ worker, onClose, onSave }) {
               </Button>
             </>
           ) : (
-            <Button onClick={onClose} className="px-4 py-2">
-              Close
-            </Button>
+            <>
+              <Link to="/dashboard" onClick={onClose}>
+                <Button className="px-4 py-2">Track Helmet</Button>
+              </Link>
+              <Button onClick={onClose} className="px-4 py-2">
+                Close
+              </Button>
+            </>
           )}
         </div>
       </Card>

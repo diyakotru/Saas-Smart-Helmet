@@ -79,7 +79,7 @@ export default function Dashboard() {
         </div>
       )}
       {/* Dashboard Body */}
-      <section className="max-w-7xl mx-auto px-4 py-8 space-y-8 animate-fade-in-up">
+      <section className="max-w-7xl mx-auto px-4 py-6 space-y-6 animate-fade-in-up">
         {/* A. Live Sensor Data */}
         <div className="bg-gray-900 p-6 rounded-xl shadow-lg border border-yellow-800/50 animate-slide-in-left">
           <h2 className="text-xl font-bold mb-4 flex items-center gap-3 text-yellow-400">
@@ -89,17 +89,17 @@ export default function Dashboard() {
           {/* Pass setAlertList so the live panel can add/remove real alerts */}
           <LiveSensorDataPanel setAlertList={setAlertList} />
         </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-stretch">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 items-stretch">
             {/* Temperature */}
             <div className="bg-gray-900 p-6 rounded-xl shadow-lg border border-yellow-800/50 animate-slide-in-up flex flex-col">
               <h2 className="text-xl font-bold mb-4 flex items-center gap-3 text-yellow-400">
                 <span></span>
                 Temperature (live)
               </h2>
-              <div className="w-full bg-[#0f1720] rounded-md overflow-hidden h-64 md:h-72 lg:h-80">
+              <div className="w-full bg-[#0f1720] rounded-md overflow-hidden h-72 md:h-80 lg:h-96">
                 <iframe
                   title="ThingSpeak Temperature"
-                  src={`https://thingspeak.com/channels/${THINGSPEAK_CHANNEL_ID}/charts/1?bgcolor=000000&color=00FFAA&dynamic=true&type=line&results=60`}
+                  src={`https://thingspeak.com/channels/${THINGSPEAK_CHANNEL_ID}/charts/1?bgcolor=0B0F14&color=22D3EE&dynamic=true&type=line&results=30&linewidth=3&gridcolor=2A2F3A&xaxis=Date&yaxis=Value`}
                   style={IFRAME_STYLE_FULL}
                 />
               </div>
@@ -111,10 +111,10 @@ export default function Dashboard() {
                 <span></span>
                 Humidity (live)
               </h2>
-              <div className="w-full bg-[#0f1720] rounded-md overflow-hidden h-64 md:h-72 lg:h-80">
+              <div className="w-full bg-[#0f1720] rounded-md overflow-hidden h-72 md:h-80 lg:h-96">
                 <iframe
                   title="ThingSpeak Humidity"
-                  src={`https://thingspeak.com/channels/${THINGSPEAK_CHANNEL_ID}/charts/2?bgcolor=000000&color=60A5FA&dynamic=true&type=line&results=60`}
+                  src={`https://thingspeak.com/channels/${THINGSPEAK_CHANNEL_ID}/charts/2?bgcolor=0B0F14&color=60A5FA&dynamic=true&type=line&results=30&linewidth=3&gridcolor=2A2F3A&xaxis=Date&yaxis=Value`}
                   style={IFRAME_STYLE_FULL}
                 />
               </div>
@@ -126,10 +126,10 @@ export default function Dashboard() {
                 <span></span>
                 Gas Levels (live)
               </h2>
-              <div className="w-full bg-[#0f1720] rounded-md overflow-hidden h-64 md:h-72 lg:h-80">
+              <div className="w-full bg-[#0f1720] rounded-md overflow-hidden h-72 md:h-80 lg:h-96">
                 <iframe
                   title="ThingSpeak Gas"
-                  src={`https://thingspeak.com/channels/${THINGSPEAK_CHANNEL_ID}/charts/3?bgcolor=000000&color=FBBF24&dynamic=true&type=line&results=60`}
+                  src={`https://thingspeak.com/channels/${THINGSPEAK_CHANNEL_ID}/charts/3?bgcolor=0B0F14&color=FBBF24&dynamic=true&type=line&results=30&linewidth=3&gridcolor=2A2F3A&xaxis=Date&yaxis=Value`}
                   style={IFRAME_STYLE_FULL}
                 />
               </div>
@@ -137,7 +137,7 @@ export default function Dashboard() {
           </div>
 
         {/* C. Worker Activity + Alerts */}
-        <div className="grid gap-8">
+        <div className="grid gap-6">
           {/* Alerts Panel (worker timeline removed to reduce clutter) */}
           <div className="bg-gray-900 p-6 rounded-xl shadow-lg border border-red-700/50 animate-slide-in-right">
             <h2 className="text-xl font-bold mb-4 flex items-center gap-3 text-red-400">
