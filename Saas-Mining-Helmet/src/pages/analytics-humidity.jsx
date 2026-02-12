@@ -25,7 +25,7 @@ export default function AnalyticsHumidity() {
         <div className="bg-[#0f141b] border border-gray-800 rounded-2xl p-6 space-y-4">
           <div>
             <p className="text-xs uppercase tracking-wider text-gray-500">Comfort Band</p>
-            <p className="text-lg font-semibold text-emerald-300">40% - 70% RH</p>
+            <p className="text-lg font-semibold text-emerald-300">30% - 70% RH</p>
           </div>
           <div>
             <p className="text-xs uppercase tracking-wider text-gray-500">Alert Trigger</p>
