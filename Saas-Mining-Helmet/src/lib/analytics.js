@@ -1,4 +1,5 @@
 export const THINGSPEAK_CHANNEL_ID = "3175273";
+export const THINGSPEAK_READ_API_KEY = "APF8YFJJ6P4Y09X0";
 
 export const CHART_FRAME_STYLE = {
   width: "100%",
@@ -13,7 +14,12 @@ export const getThingSpeakChartUrl = ({ field, color }) => {
     color,
     dynamic: "true",
     type: "line",
-    results: "120",
+    results: "30",
+    width: "960",
+    height: "520",
+    xaxis: "Date",
+    yaxis: "Value",
+    timezone: "UTC",
   });
 
   return `${base}?${params.toString()}`;

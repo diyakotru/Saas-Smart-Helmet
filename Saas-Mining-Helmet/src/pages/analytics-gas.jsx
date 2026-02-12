@@ -11,9 +11,9 @@ export default function AnalyticsGas() {
         <div className="lg:col-span-2 bg-[#0f141b] border border-gray-800 rounded-2xl p-6">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-semibold text-amber-300">Gas Trend</h3>
-            <span className="text-xs text-gray-500">Last 120 readings</span>
+            <span className="text-xs text-gray-500">Last 30 readings</span>
           </div>
-          <div className="w-full h-80 md:h-96 bg-black/60 rounded-xl overflow-hidden">
+          <div className="w-full h-[60vh] md:h-[68vh] bg-black/60 rounded-xl overflow-hidden flex items-center justify-center">
             <iframe
               title="Gas Analytics"
               src={getThingSpeakChartUrl({ field: 3, color: "F59E0B" })}
@@ -35,6 +35,28 @@ export default function AnalyticsGas() {
             <p className="text-xs uppercase tracking-wider text-gray-500">Sensor Focus</p>
             <p className="text-sm text-gray-300">Early warning for toxic gas spikes.</p>
           </div>
+        </div>
+      </section>
+
+      <section className="bg-[#0f141b] border border-gray-800 rounded-2xl p-6 text-center">
+        <p className="text-xs uppercase tracking-wider text-gray-500">Warnings</p>
+        <p className="text-lg font-semibold text-emerald-300 mt-2">No active warnings</p>
+        <p className="text-sm text-gray-400 mt-2">Alerts appear here if gas levels cross the safe band.</p>
+      </section>
+
+      <section className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
+        <div className="bg-[#0f141b] border border-gray-800 rounded-2xl p-5">
+          <p className="text-xs uppercase text-gray-500">High-Risk Window</p>
+          <p className="text-lg font-semibold text-amber-300 mt-1">19:00 - 21:00</p>
+          <p className="text-sm text-gray-400 mt-2">Ventilation load peaks during late shift operations.</p>
+        </div>
+        <div className="bg-[#0f141b] border border-gray-800 rounded-2xl p-5">
+          <p className="text-xs uppercase text-gray-500">Recommended Action</p>
+          <p className="text-sm text-gray-300 mt-2">Run extraction fans at 85% when trend rises near 30 PPM.</p>
+        </div>
+        <div className="bg-[#0f141b] border border-gray-800 rounded-2xl p-5">
+          <p className="text-xs uppercase text-gray-500">Compliance Note</p>
+          <p className="text-sm text-gray-300 mt-2">Record any spikes above 35 PPM for safety reporting.</p>
         </div>
       </section>
 
