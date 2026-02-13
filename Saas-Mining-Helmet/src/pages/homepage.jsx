@@ -18,29 +18,29 @@ export default function HomePage() {
         return {
           tag: "Safety Light",
           status: "Active",
-          value: "Red LED On",
+          brief: "High-visibility LED beacon for tunnel navigation and worker recognition.",
           desc: "High-visibility red helmet light ensuring worker safety in low-light mining zones.",
         };
       case "gas-detector":
         return {
           tag: "Environment",
           status: "Safe",
-          value: "CO: 12 PPM",
+          brief: "Multi-gas sensing module that flags unsafe air quality and triggers alerts.",
           desc: "Monitors harmful gas levels (e.g., CO, Methane) in the environment to prevent worker exposure.",
         };
       case "temperature":
         return {
           tag: "Environment",
           status: "Normal",
-          value: "28°C / 65% RH",
+          brief: "Tracks thermal comfort to reduce heat stress and dehydration risk.",
           desc: "Tracks environmental temperature and humidity to alert for heat stress or extreme cold conditions.",
         };
       case "buzzer":
         return {
           tag: "Audio Alert",
           status: "Standby",
-          value: "Silent",
-          desc: "Audible alarm (85 dB+) for critical alerts like fall detection or high gas readings.",
+          brief: "High-decibel alarm for immediate evacuation or hazard signaling.",
+          desc: "Audible alarm (85 dB+) for critical alert on high gas readings.",
         };
       default:
         return null;
@@ -229,8 +229,8 @@ export default function HomePage() {
                 </div>
                 
                 <div className="mb-6">
-                  <div className="text-sm text-gray-400 mb-2">Current Reading</div>
-                  <div className="text-4xl font-bold text-white">{currentDetails.value}</div>
+                  <div className="text-sm text-gray-400 mb-2">Sensor Briefing</div>
+                  <div className="text-xl font-semibold text-white">{currentDetails.brief}</div>
                 </div>
                 
                 <p className="text-gray-400 leading-relaxed mb-6">{currentDetails.desc}</p>
