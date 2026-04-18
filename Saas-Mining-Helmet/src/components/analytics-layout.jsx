@@ -7,10 +7,15 @@ const NAV_ITEMS = [
   { to: "/analytics/overall", label: "Overall" },
 ];
 
-export default function AnalyticsLayout({ title, subtitle, children }) {
+export default function AnalyticsLayout({ title, subtitle, children, onDownloadPage }) {
   const location = useLocation();
 
   const handleDownload = () => {
+    if (typeof onDownloadPage === "function") {
+      onDownloadPage();
+      return;
+    }
+
     window.print();
   };
 

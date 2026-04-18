@@ -114,19 +114,241 @@ export const computeAlertsPerShift = (incidents, shiftHours = 8) => {
   return { count, level };
 };
 
+export const computeAverageValue = (rows, key) => {
+  if (!Array.isArray(rows) || rows.length === 0) return null;
+
+  const values = rows.map((row) => row?.[key]).filter((value) => Number.isFinite(value));
+  if (values.length === 0) return null;
+
+  return values.reduce((sum, value) => sum + value, 0) / values.length;
+};
+
+export const computeTrendDelta = (rows, key, lookbackHours = 1) => {
+  if (!Array.isArray(rows) || rows.length < 2) return null;
+
+  const latest = rows[rows.length - 1];
+  const latestValue = latest?.[key];
+  const latestTimestamp = latest?.timestamp;
+
+  if (!Number.isFinite(latestValue) || !(latestTimestamp instanceof Date)) return null;
+
+  const targetTime = latestTimestamp.getTime() - lookbackHours * 60 * 60 * 1000;
+  const referenceRow = [...rows]
+    .reverse()
+    .find((row) => row.timestamp instanceof Date && row.timestamp.getTime() <= targetTime && Number.isFinite(row?.[key]));
+
+  const fallbackRow = rows[0];
+  const comparisonRow = referenceRow || fallbackRow;
+
+  if (!comparisonRow || !Number.isFinite(comparisonRow?.[key])) return null;
+
+  return latestValue - comparisonRow[key];
+};
+
+export const formatSignedMetricDelta = (value, unit = "", fractionDigits = 1) => {
+  if (!Number.isFinite(value)) return "--";
+
+  const sign = value > 0 ? "+" : value < 0 ? "-" : "";
+  const absoluteValue = Math.abs(value).toFixed(fractionDigits);
+  return `${sign}${absoluteValue}${unit}`;
+};
+
+const getLatestReading = (rows) => (Array.isArray(rows) && rows.length > 0 ? rows[rows.length - 1] : null);
+
+const getRecentSeries = (rows, key, limit = 5) =>
+  (Array.isArray(rows) ? rows.slice(-limit) : [])
+    .map((row) => row?.[key])
+    .filter((value) => Number.isFinite(value));
+
+const isStrictlyIncreasing = (values) =>
+  Array.isArray(values) && values.length >= 4 && values.every((value, index) => index === 0 || value > values[index - 1]);
+
+const summarizeRiskLevel = (score) => {
+  if (score >= 7) return { level: "DANGER", tone: "text-red-300", ring: "border-red-500/40" };
+  if (score >= 4) return { level: "WARNING", tone: "text-amber-300", ring: "border-amber-500/40" };
+  return { level: "SAFE", tone: "text-emerald-300", ring: "border-emerald-500/40" };
+};
+
+export const detectTrendSignals = (rows, thresholds) => {
+  const signals = [];
+  const latest = getLatestReading(rows);
+  const gasSeries = getRecentSeries(rows, "gas", 5);
+  const temperatureSeries = getRecentSeries(rows, "temperature", 5);
+  const humiditySeries = getRecentSeries(rows, "humidity", 5);
+
+  if (isStrictlyIncreasing(gasSeries) && gasSeries[gasSeries.length - 1] >= thresholds.gasWarning) {
+    signals.push({
+      id: "gas-rising",
+      label: "Gas rising continuously",
+      severity: "High",
+      message: `Gas has increased across ${gasSeries.length} consecutive readings and now sits at ${gasSeries[gasSeries.length - 1]} ADC.`,
+    });
+  }
+
+  if (isStrictlyIncreasing(temperatureSeries) && temperatureSeries[temperatureSeries.length - 1] >= thresholds.tempHigh) {
+    signals.push({
+      id: "temperature-rising",
+      label: "Temperature climbing steadily",
+      severity: "Medium",
+      message: `Temperature has climbed through the latest readings and is now ${temperatureSeries[temperatureSeries.length - 1]}°C.`,
+    });
+  }
+
+  if (humiditySeries.length >= 4 && humiditySeries.every((value, index) => index === 0 || value < humiditySeries[index - 1])) {
+    const latestHumidity = humiditySeries[humiditySeries.length - 1];
+    signals.push({
+      id: "humidity-dropping",
+      label: "Humidity falling continuously",
+      severity: "Low",
+      message: `Humidity has been falling for ${humiditySeries.length} readings and is now ${latestHumidity}%.`,
+    });
+  }
+
+  if (latest && latest.gas != null && latest.gas > thresholds.gasDanger) {
+    signals.push({
+      id: "gas-danger-latest",
+      label: "Immediate gas hazard",
+      severity: "High",
+      message: `Latest gas reading is at critical level (${latest.gas} ADC).`,
+    });
+  }
+
+  return signals;
+};
+
+export const calculateAiRiskLevel = ({ rows, incidents, unsafeMinutes, alertsPerShift, trendSignals, thresholds }) => {
+  let score = 0;
+  const latest = getLatestReading(rows);
+  const recentIncidents = Array.isArray(incidents) ? incidents.slice(0, 3) : [];
+  const highSeverityIncidents = recentIncidents.filter((incident) => incident.severity === "High").length;
+
+  if (latest?.gas != null) {
+    if (latest.gas > thresholds.gasDanger) score += 4;
+    else if (latest.gas > thresholds.gasWarning) score += 2;
+  }
+
+  if (latest?.temperature != null && latest.temperature > thresholds.tempHigh) {
+    score += 2;
+  }
+
+  if (unsafeMinutes >= 60) score += 2;
+  else if (unsafeMinutes >= 20) score += 1;
+
+  if (alertsPerShift?.count >= 6) score += 2;
+  else if (alertsPerShift?.count >= 3) score += 1;
+
+  score += highSeverityIncidents * 2;
+  score += recentIncidents.filter((incident) => incident.severity === "Medium").length;
+
+  if (Array.isArray(trendSignals) && trendSignals.some((signal) => signal.severity === "High")) {
+    score += 2;
+  }
+
+  if (Array.isArray(trendSignals) && trendSignals.some((signal) => signal.severity === "Medium")) {
+    score += 1;
+  }
+
+  const summary = summarizeRiskLevel(score);
+  const reasonParts = [];
+
+  if (latest?.gas != null) reasonParts.push(`latest gas ${latest.gas} ADC`);
+  if (latest?.temperature != null) reasonParts.push(`latest temperature ${latest.temperature}°C`);
+  if (unsafeMinutes > 0) reasonParts.push(`${unsafeMinutes} unsafe minute${unsafeMinutes === 1 ? "" : "s"}`);
+  if (alertsPerShift?.count > 0) reasonParts.push(`${alertsPerShift.count} alert${alertsPerShift.count === 1 ? "" : "s"} this shift`);
+  if (Array.isArray(trendSignals) && trendSignals.length > 0) {
+    reasonParts.push(trendSignals[0].label.toLowerCase());
+  }
+
+  return {
+    level: summary.level,
+    tone: summary.tone,
+    ring: summary.ring,
+    score,
+    reason: reasonParts.length > 0 ? reasonParts.join("; ") : "No active risk drivers detected.",
+  };
+};
+
+export const buildAiInsights = ({ rows, incidents, unsafeMinutes, alertsPerShift, trendSignals }) => {
+  const insights = [];
+  const latest = getLatestReading(rows);
+  const latestIncident = Array.isArray(incidents) && incidents.length > 0 ? incidents[0] : null;
+
+  insights.push(
+    `Unsafe exposure totaled ${unsafeMinutes} minute${unsafeMinutes === 1 ? "" : "s"} across the latest 24-hour window.`
+  );
+
+  insights.push(
+    `Alert activity is ${alertsPerShift.count} event${alertsPerShift.count === 1 ? "" : "s"} per shift, which maps to a ${alertsPerShift.level} operating load.`
+  );
+
+  if (latestIncident) {
+    insights.push(
+      `Latest incident: ${latestIncident.type} at ${formatClockTime(latestIncident.timestamp)} with ${latestIncident.severity} severity.`
+    );
+  } else {
+    insights.push("No recent incidents were recorded in the active monitoring window.");
+  }
+
+  if (Array.isArray(trendSignals) && trendSignals.length > 0) {
+    insights.push(trendSignals[0].message);
+  } else if (latest?.gas != null || latest?.temperature != null) {
+    insights.push("Current readings are stable enough to keep the helmet within the SAFE operating band.");
+  }
+
+  return insights;
+};
+
+export const buildAiRecommendations = ({ rows, thresholds, trendSignals, riskLevel }) => {
+  const latest = getLatestReading(rows);
+  const recommendations = [];
+
+  if (latest?.gas != null && latest.gas >= thresholds.gasWarning) {
+    recommendations.push("Improve ventilation immediately because gas levels are elevated.");
+  }
+
+  if (latest?.temperature != null && latest.temperature >= thresholds.tempHigh) {
+    recommendations.push("Reduce exposure and rotate workers because temperature is above the safe band.");
+  }
+
+  if (latest?.humidity != null && (latest.humidity < thresholds.humidityLow || latest.humidity > thresholds.humidityHigh)) {
+    recommendations.push("Adjust airflow and dehumidification to restore humidity to the comfort band.");
+  }
+
+  if (Array.isArray(trendSignals) && trendSignals.some((signal) => signal.id === "gas-rising")) {
+    recommendations.push("Escalate monitoring and keep extraction fans active because gas is rising continuously.");
+  }
+
+  if (riskLevel?.level === "DANGER") {
+    recommendations.push("Pause non-essential work and alert the supervisor until the environment returns to SAFE.");
+  } else if (riskLevel?.level === "WARNING") {
+    recommendations.push("Increase worker check-ins and shorten exposure cycles while conditions are being stabilized.");
+  }
+
+  if (recommendations.length === 0) {
+    recommendations.push("Conditions are stable; keep the current monitoring cadence and log the next sampling window.");
+  }
+
+  return recommendations;
+};
+
 const formatHourWindow = (hour) => {
   const endHour = (hour + 2) % 24;
   const pad = (value) => String(value).padStart(2, "0");
   return `${pad(hour)}:00-${pad(endHour)}:00`;
 };
 
-export const buildRiskInsights = (incidents) => {
+export const buildRiskInsights = (incidents, rows = [], trendSignals = []) => {
   if (!Array.isArray(incidents) || incidents.length === 0) {
-    return ["No recurring risk patterns detected in the current window."];
+    const fallback = ["No recurring risk patterns detected in the current window."];
+    if (Array.isArray(trendSignals) && trendSignals.length > 0) {
+      fallback.unshift(`Trend signal detected: ${trendSignals[0].message}`);
+    }
+    return fallback;
   }
 
   const gasIncidents = incidents.filter((incident) => incident.type.includes("Gas"));
   const tempIncidents = incidents.filter((incident) => incident.type.includes("Temperature"));
+  const latestReading = getLatestReading(rows);
   const insights = [];
 
   const buildHourlyInsight = (items, label) => {
@@ -149,6 +371,14 @@ export const buildRiskInsights = (incidents) => {
   const daySet = new Set(incidents.map((incident) => incident.timestamp.toDateString()));
   if (daySet.size >= 2) {
     insights.push("Alerts repeat across multiple days, suggesting a persistent operational pattern.");
+  }
+
+  if (Array.isArray(trendSignals) && trendSignals.length > 0) {
+    insights.push(`AI trend check: ${trendSignals[0].label} because ${trendSignals[0].message}`);
+  }
+
+  if (latestReading?.gas != null && latestReading.gas > 0) {
+    insights.push(`Latest gas reading is ${latestReading.gas} ADC, which keeps the risk model responsive to current conditions.`);
   }
 
   if (insights.length === 0) {
