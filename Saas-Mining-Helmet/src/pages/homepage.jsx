@@ -256,7 +256,7 @@ export default function HomePage() {
                 <div className="pt-6 border-t border-gray-800">
                   <div className="text-sm text-gray-400 mb-2">Sensor Details</div>
                   <div className="flex items-center justify-between">
-                    <span className="text-gray-300 font-mono">{hoveredSensor}</span>
+                    <span className="text-gray-300">{hoveredSensor}</span>
                     <span className="text-emerald-400 text-sm font-semibold flex items-center gap-1">
                       ✅ Active
                     </span>

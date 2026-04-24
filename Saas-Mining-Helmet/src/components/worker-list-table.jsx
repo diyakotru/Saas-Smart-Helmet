@@ -154,7 +154,7 @@ export default function WorkerListTable() {
                 key={worker.workerId}
                 className="border-b border-gray-800 hover:bg-gray-800/50 transition-colors duration-200 animate-slide-in-row"
               >
-                <td className="px-4 py-3 text-sm font-mono text-yellow-500">
+								<td className="px-4 py-3 text-sm text-yellow-500">
                   {worker.workerId}
                 </td>
                 <td className="px-4 py-3 text-sm font-semibold text-white">{worker.name}</td>

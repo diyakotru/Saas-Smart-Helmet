@@ -84,6 +84,7 @@ export default function WorkersOverviewPanel() {
   const [searchQuery, setSearchQuery] = useState("");
   const [filterStatus, setFilterStatus] = useState("All");
   const [selectedWorker, setSelectedWorker] = useState(null);
+  const [isCreatingWorker, setIsCreatingWorker] = useState(false);
   const [workers, setWorkers] = useState(INITIAL_WORKERS);
 
   const filteredWorkers = useMemo(() => {
@@ -139,6 +140,30 @@ export default function WorkersOverviewPanel() {
 
   return (
     <div className="space-y-4">
+
+      <div className="flex justify-end">
+        <Button
+          className="bg-gradient-to-r from-yellow-500 to-amber-600 text-black hover:from-yellow-400 hover:to-amber-500 border border-yellow-400/40"
+          onClick={() => {
+            setSelectedWorker({
+              id: "",
+              workerId: "",
+              helmetId: "",
+              name: "",
+              age: "",
+              bloodGroup: "",
+              knownDiseases: "",
+              emergencyContact: "",
+              location: "",
+              status: "Safe",
+            });
+            setIsCreatingWorker(true);
+          }}
+        >
+          Add Worker
+        </Button>
+      </div>
+
             {/* Search + Filter Bar */}     {" "}
       <div className="flex flex-col md:flex-row gap-3 animate-fade-in-down">
                {" "}
@@ -207,7 +232,7 @@ export default function WorkersOverviewPanel() {
                                    {" "}
                   <span className="text-gray-500">Helmet ID:</span>             
                      {" "}
-                  <span className="font-mono text-gray-300">
+                  <span className="text-gray-300">
                     {worker.helmetId}
                   </span>
                                  {" "}
@@ -250,10 +275,22 @@ export default function WorkersOverviewPanel() {
       {selectedWorker && (
         <WorkerDetailsModal
           worker={selectedWorker}
+          mode={isCreatingWorker ? "create" : "edit"}
           onClose={() => setSelectedWorker(null)}
           onSave={(updated) => {
             setWorkers((prev) => prev.map((w) => (w.id === updated.id ? updated : w)));
             setSelectedWorker(updated);
+            setIsCreatingWorker(false);
+          }}
+          onCreate={(created) => {
+            setWorkers((prev) => [created, ...prev]);
+            setSelectedWorker(created);
+            setIsCreatingWorker(false);
+          }}
+          onDelete={(workerToDelete) => {
+            setWorkers((prev) => prev.filter((worker) => worker.id !== workerToDelete.id));
+            setSelectedWorker(null);
+            setIsCreatingWorker(false);
           }}
         />
       )}

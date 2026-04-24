@@ -5,24 +5,48 @@ import { Link } from "react-router-dom";
 import { Card } from "./ui/card";
 import { Button } from "./ui/button";
 
-export default function WorkerDetailsModal({ worker, onClose, onSave }) {
+export default function WorkerDetailsModal({ worker, mode = "view", onClose, onSave, onCreate, onDelete }) {
   const [isEditing, setIsEditing] = useState(false);
   const [form, setForm] = useState({});
+  const isCreating = mode === "create";
 
   useEffect(() => {
-    if (worker)
+    if (worker) {
       setForm({
         id: worker.id,
+        workerId: worker.workerId ?? "",
+        helmetId: worker.helmetId ?? "",
         name: worker.name ?? "",
         age: worker.age ?? "",
         bloodGroup: worker.bloodGroup ?? "",
         knownDiseases: worker.knownDiseases ?? "",
         emergencyContact: worker.emergencyContact ?? "",
         location: worker.location ?? "",
+        status: worker.status ?? "Safe",
       });
+    } else {
+      setForm({
+        id: "",
+        workerId: "",
+        helmetId: "",
+        name: "",
+        age: "",
+        bloodGroup: "",
+        knownDiseases: "",
+        emergencyContact: "",
+        location: "",
+        status: "Safe",
+      });
+    }
   }, [worker]);
 
-  if (!worker) return null;
+  useEffect(() => {
+    if (isCreating) {
+      setIsEditing(true);
+    }
+  }, [isCreating]);
+
+  if (!worker && !isCreating) return null;
 
   function handleChange(e) {
     const { name, value } = e.target;
@@ -32,6 +56,19 @@ export default function WorkerDetailsModal({ worker, onClose, onSave }) {
   function handleSave() {
     const updated = { ...worker, ...form };
     if (onSave) onSave(updated);
+    setIsEditing(false);
+  }
+
+  function handleCreate() {
+    const created = {
+      ...form,
+      id: form.id || `${Date.now()}`,
+      workerId: form.workerId || `WRK${String(Date.now()).slice(-4)}`,
+      helmetId: form.helmetId || `HLM${String(Date.now()).slice(-4)}`,
+      status: form.status || "Safe",
+    };
+
+    if (onCreate) onCreate(created);
     setIsEditing(false);
   }
 
@@ -65,6 +102,34 @@ export default function WorkerDetailsModal({ worker, onClose, onSave }) {
         </div>
 
         <div className="space-y-3 text-sm text-gray-300">
+          <div className="flex justify-between items-center">
+            <span className="text-gray-500">Worker ID:</span>
+            {isEditing ? (
+              <input
+                name="workerId"
+                value={form.workerId}
+                onChange={handleChange}
+                className="ml-4 w-32 px-2 py-1 rounded bg-gray-800 text-gray-200 border border-gray-700"
+              />
+            ) : (
+              <span>{worker.workerId ?? "N/A"}</span>
+            )}
+          </div>
+
+          <div className="flex justify-between items-center">
+            <span className="text-gray-500">Helmet ID:</span>
+            {isEditing ? (
+              <input
+                name="helmetId"
+                value={form.helmetId}
+                onChange={handleChange}
+                className="ml-4 w-32 px-2 py-1 rounded bg-gray-800 text-gray-200 border border-gray-700"
+              />
+            ) : (
+              <span>{worker.helmetId ?? "N/A"}</span>
+            )}
+          </div>
+
           <div className="flex justify-between items-center">
             <span className="text-gray-500">Age:</span>
             {isEditing ? (
@@ -152,13 +217,13 @@ export default function WorkerDetailsModal({ worker, onClose, onSave }) {
         <div className="mt-6 flex justify-end gap-3">
           {isEditing ? (
             <>
-              <Button onClick={handleSave} className="px-4 py-2">
-                Save
+              <Button onClick={isCreating ? handleCreate : handleSave} className="px-4 py-2">
+                {isCreating ? "Add" : "Save"}
               </Button>
               <Button
                 onClick={() => {
                   setIsEditing(false);
-                  setForm({ ...worker });
+                  setForm(worker ? { ...worker } : {});
                 }}
                 className="px-4 py-2"
               >
@@ -167,6 +232,16 @@ export default function WorkerDetailsModal({ worker, onClose, onSave }) {
             </>
           ) : (
             <>
+              {!isCreating && (
+                <Button
+                  onClick={() => {
+                    if (onDelete) onDelete(worker);
+                  }}
+                  className="px-4 py-2 bg-red-600 text-white hover:bg-red-700"
+                >
+                  Delete
+                </Button>
+              )}
               <Link to="/dashboard" onClick={onClose}>
                 <Button className="px-4 py-2">Track Helmet</Button>
               </Link>

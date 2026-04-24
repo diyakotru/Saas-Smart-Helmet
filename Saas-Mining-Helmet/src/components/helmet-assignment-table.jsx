@@ -190,13 +190,13 @@ export default function HelmetAssignmentTable() {
                 // Added staggered animation for rows
                 style={{ animation: `slide-in-row 0.3s ease-out forwards ${index * 0.05}s`}}
               >
-                <td className="px-4 py-3 text-sm font-mono text-yellow-500 font-bold">
+                <td className="px-4 py-3 text-sm text-yellow-500 font-bold">
                   {helmet.helmetId}
                 </td>
                 <td className="px-4 py-3 text-sm text-white">
                   {helmet.assignedWorker}
                 </td>
-                <td className="px-4 py-3 text-sm font-mono text-gray-400">
+                <td className="px-4 py-3 text-sm text-gray-400">
                   {helmet.workerId}
                 </td>
                 <td className="px-4 py-3 text-sm text-gray-400">
@@ -205,7 +205,7 @@ export default function HelmetAssignmentTable() {
                 <td className="px-4 py-3 text-sm text-gray-400">
                   {helmet.lastCalibrated}
                 </td>
-                <td className="px-4 py-3 text-sm font-mono text-gray-300">
+                <td className="px-4 py-3 text-sm text-gray-300">
                   {helmet.firmwareVersion}
                 </td>
                 <td className="px-4 py-3 text-sm">

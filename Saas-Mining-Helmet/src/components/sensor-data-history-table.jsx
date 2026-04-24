@@ -230,10 +230,10 @@ export default function SensorDataHistoryTable() {
                 // Added staggered animation for rows
                 style={{ animation: `slide-in-row 0.3s ease-out forwards ${index * 0.05}s`}}
               >
-                <td className="px-4 py-3 text-sm font-mono text-gray-500">
+                                                <td className="px-4 py-3 text-sm text-gray-500">
                   {record.recordId}
                 </td>
-                <td className="px-4 py-3 text-sm font-mono text-yellow-500 font-bold">{record.helmetId}</td>
+                                                <td className="px-4 py-3 text-sm text-yellow-500 font-bold">{record.helmetId}</td>
                 <td className="px-4 py-3 text-sm text-gray-400">{record.timestamp}</td>
 
                 <td className={`px-4 py-3 text-sm font-semibold ${getTemperatureColor(record.temperature)}`}>
