@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 
 import LiveSensorDataPanel from "../components/live-sensor-panel";
 import AlertsPanel from "../components/alerts-panel";
+import { Thermometer, Droplets, Flame, Activity, Wind } from "lucide-react";
 
 const THINGSPEAK_CHANNEL_ID = "3175273";
 const TABS = ["Readings", "Visualise", "Alerts"];
@@ -13,16 +14,16 @@ const chartConfigs = [
   { title: "Temperature",    field: 1, color: "22D3EE", icon: "🌡️" },
   { title: "Humidity",       field: 2, color: "60A5FA", icon: "💧" },
   { title: "Gas Levels",     field: 3, color: "FBBF24", icon: "🔬" },
-  { title: "MPU6050 Motion", field: 4, color: "34D399", icon: "📡" },
-  { title: "Flame Sensor",   field: 5, color: "F97316", icon: "🔥" },
+  { title: "MPU6050 Motion", field: 8, color: "34D399", icon: "📡" },
+  { title: "Flame Sensor",   field: 4, color: "F97316", icon: "🔥" },
 ];
 
 const sensorMeta = [
-  { key: "temp",  label: "Temperature",    unit: "°C",      icon: "🌡️", cls: "temp"  },
-  { key: "hum",   label: "Humidity",       unit: "% RH",    icon: "💧", cls: "hum"   },
-  { key: "gas",   label: "Gas Level",      unit: "ADC",     icon: "🔬", cls: "gas"   },
-  { key: "mpu",   label: "MPU6050 Motion", unit: "g",       icon: "📡", cls: "mpu"   },
-  { key: "flame", label: "Flame Sensor",   unit: "Digital", icon: "🔥", cls: "flame" },
+  { key: "temp", label: "Temperature", unit: "°C", icon: <Thermometer size={26} />, cls: "temp" },
+  { key: "hum", label: "Humidity", unit: "% RH", icon: <Droplets size={26} />, cls: "hum" },
+  { key: "gas", label: "Gas Level", unit: "ADC", icon: <Wind size={26} />, cls: "gas" },
+  { key: "mpu", label: "MPU6050 Motion", unit: "g", icon: <Activity size={26} />, cls: "mpu" },
+  { key: "flame", label: "Flame Sensor", unit: "Digital", icon: <Flame size={26} />, cls: "flame" },
 ];
 
 function chartSrc(field, color) {
@@ -108,7 +109,7 @@ export default function Dashboard() {
         .scb-top   { display:flex; align-items:center; justify-content:space-between; }
         .scb-icon  { font-size:28px; line-height:1; }
         .scb-label { font-size:11px; font-weight:700; letter-spacing:0.12em; text-transform:uppercase; color:#4B5563; }
-        .scb-value { font-family:'Poppins',sans-serif; font-size:52px; font-weight:800; line-height:1; margin:10px 0 4px; }
+        .scb-value { font-family:'Poppins',sans-serif; font-size: clamp(28px, 3vw, 36px); font-weight:800; line-height:1; margin:10px 0 4px; }
         .scb-unit  { font-size:12px; color:#374151; font-family:'Poppins',sans-serif; letter-spacing:0.05em; }
 
         .sensor-card-big.temp  .scb-value { color:#22D3EE; text-shadow:0 0 40px rgba(34,211,238,0.25); }
@@ -230,7 +231,11 @@ export default function Dashboard() {
                     <span className="scb-label">{s.label}</span>
                     <span className="scb-icon">{s.icon}</span>
                   </div>
-                  <div className="scb-value">{sensorValues[s.key] ?? "--"}</div>
+                  <div className="scb-value">
+                    {sensorValues[s.key] !== "--"
+                      ? Number(sensorValues[s.key]).toFixed(1)
+                      : "--"}
+                  </div>
                   <div className="scb-unit">{s.unit} · Live</div>
                 </div>
               ))}

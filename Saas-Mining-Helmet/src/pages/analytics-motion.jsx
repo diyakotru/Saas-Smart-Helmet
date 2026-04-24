@@ -55,7 +55,7 @@ export default function AnalyticsMotion() {
         const data = await response.json();
         const feeds = Array.isArray(data?.feeds) ? data.feeds : [];
         const readings = feeds
-          .map((feed) => ({ timestamp: feed.created_at ? new Date(feed.created_at) : null, value: Number.parseFloat(feed.field4) }))
+          .map((feed) => ({ timestamp: feed.created_at ? new Date(feed.created_at) : null, value: Number.parseFloat(feed.field8) }))
           .filter((row) => row.timestamp instanceof Date && !Number.isNaN(row.timestamp.getTime()) && Number.isFinite(row.value))
           .sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
 

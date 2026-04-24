@@ -3,6 +3,7 @@
 
 import { useEffect, useState } from "react";
 import { Card } from "../components/ui/card";
+import mqtt from "mqtt";
 
 const THINGSPEAK_CHANNEL_ID = "3175273";
 const THINGSPEAK_READ_API_KEY = "APF8YFJJ6P4Y09X0";
@@ -125,7 +126,7 @@ const buildAlertListFromFeeds = (feeds, limits) => {
     .slice(0, MAX_ALERT_ROWS);
 };
 
-export default function LiveSensorDataPanel({ setAlertList }) {
+export default function LiveSensorDataPanel({ setAlertList, setSensorValues }) {
   const [sensors, setSensors] = useState({
     temperature: null,
     humidity: null,
@@ -169,23 +170,43 @@ export default function LiveSensorDataPanel({ setAlertList }) {
         const lastTemp = findLastValidReading(feeds, 'field1');
         const lastHum = findLastValidReading(feeds, 'field2');
         const lastGas = findLastValidReading(feeds, 'field3');
-        const lastMotion = findLastValidReading(feeds, 'field4');
-        const lastFlame = findLastValidReading(feeds, 'field5');
+        const lastMotion = findLastValidReading(feeds, 'field8');
+        const lastFlame = findLastValidReading(feeds, 'field4');
         const latestTime = feeds[0].created_at;
 
-        setSensors({
-          temperature: parseNumberWithFallback(lastTemp),
-          humidity: parseNumberWithFallback(lastHum),
-          gasLevels: parseNumberWithFallback(lastGas),
-          motion: parseNumberWithFallback(lastMotion),
-          flame: parseNumberWithFallback(lastFlame),
-          lastUpdate: latest.created_at ? new Date(latestTime) : new Date(),
-        });
+        // setSensors({
+        //   temperature: parseNumberWithFallback(lastTemp),
+        //   humidity: parseNumberWithFallback(lastHum),
+        //   gasLevels: parseNumberWithFallback(lastGas),
+        //   motion: parseNumberWithFallback(lastMotion),
+        //   flame: parseNumberWithFallback(lastFlame),
+        //   lastUpdate: latest.created_at ? new Date(latestTime) : new Date(),
+        // });
 
-        if (setAlertList) {
-          const alerts = buildAlertListFromFeeds(feeds, thresholds);
-          setAlertList(alerts);
+
+        // setSensors({
+        //   temperature: parseNumberWithFallback(lastTemp),
+        //   humidity: parseNumberWithFallback(lastHum),
+        //   gasLevels: parseNumberWithFallback(lastGas),
+        //   motion: parseNumberWithFallback(lastMotion),
+        //   flame: parseNumberWithFallback(lastFlame),
+        //   lastUpdate: latest.created_at ? new Date(latestTime) : new Date(),
+        // });
+
+        if (setSensorValues) {
+          setSensorValues({
+            temp: lastTemp,
+            hum: lastHum,
+            gas: lastGas,
+            mpu: lastMotion,
+            flame: lastFlame,
+          });
         }
+
+        // if (setAlertList) {
+        //   const alerts = buildAlertListFromFeeds(feeds, thresholds);
+        //   setAlertList(alerts);
+        // }
 
         setFetchError(null);
 
@@ -204,6 +225,88 @@ export default function LiveSensorDataPanel({ setAlertList }) {
       clearInterval(id);
     };
   }, [isConfigured, setAlertList]);
+
+  useEffect(() => {
+    const client = mqtt.connect("ws://broker.hivemq.com:8000/mqtt");
+
+    client.on("connect", () => {
+  console.log("✅ MQTT Connected");
+  client.subscribe("iot/alerts");
+  client.subscribe("iot/sensor/data"); // 🔥 NEW
+});
+
+   client.on("message", (topic, message) => {
+
+  // 🔴 ALERTS
+  if (topic === "iot/alerts") {
+    const msg = message.toString();
+
+    let alertMessage = "";
+    let alertType = "";
+
+    if (msg === "GAS_DANGER") {
+      alertMessage = "🔥 Gas Leak Detected!";
+      alertType = "Gas";
+    }
+    else if (msg === "FLAME_DETECTED") {
+      alertMessage = "🔥 Fire Detected!";
+      alertType = "Flame";
+    }
+    else if (msg === "TEMP_HIGH") {
+      alertMessage = "🌡 High Temperature!";
+      alertType = "Temperature";
+    }
+    else if (msg === "FALL_DETECTED") {
+      alertMessage = "⚠️ Fall Detected!";
+      alertType = "Fall";
+    }
+    else {
+      return ;
+    }
+
+    const newAlert = {
+      id: Date.now(),
+      type: alertType,
+      message: alertMessage,
+      timestamp: new Date(),
+      severity: "danger",
+    };
+
+    if (setAlertList) {
+      setAlertList(prev => [newAlert, ...prev.slice(0, 10)]);
+    }
+  }
+
+  // 🔥 LIVE SENSOR DATA
+  if (topic === "iot/sensor/data") {
+    try {
+      const data = JSON.parse(message.toString());
+
+      // 👉 combine motion properly
+      const motion = Math.sqrt(
+        (data.ax || 0) * (data.ax || 0) +
+        (data.ay || 0) * (data.ay || 0) +
+        (data.az || 0) * (data.az || 0)
+      );
+
+      setSensors({
+        temperature: data.temp,
+        humidity: data.humidity,
+        gasLevels: data.gas,
+        motion: motion,
+        flame: data.flame,
+        lastUpdate: new Date(),
+      });
+
+    } catch (err) {
+      console.error("MQTT parse error", err);
+    }
+  }
+});
+    return () => {
+      client.end();
+    };
+  }, []);
 
   // COLORS
   const COLOR = {
@@ -338,7 +441,7 @@ export default function LiveSensorDataPanel({ setAlertList }) {
       {/* Flame Sensor */}
       <Card className={`p-6 bg-gray-900 border ${COLOR.CARD_BORDER} ${COLOR.CARD_HOVER}`}>
         <p className="text-sm text-gray-400">Flame Sensor</p>
-        <p className={`text-3xl font-bold ${getStatusColor("gas", sensors.flame)}`}>
+        <p className={`text-3xl font-bold ${getStatusColor("flame", sensors.flame)}`}>
           {sensors.flame == null ? "--" : sensors.flame > 0 ? "Detected" : "Clear"}
         </p>
         <div className={`px-2 py-1 mt-2 rounded text-xs ${getStatusBg("flame", sensors.flame)}`}>

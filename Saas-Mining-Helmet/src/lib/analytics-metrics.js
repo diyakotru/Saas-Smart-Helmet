@@ -24,8 +24,8 @@ export const normalizeFeeds = (feeds) => {
       temperature: parseNumberWithFallback(feed.field1),
       humidity: parseNumberWithFallback(feed.field2),
       gas: parseNumberWithFallback(feed.field3),
-      motion: parseNumberWithFallback(feed.field4),
-      flame: parseNumberWithFallback(feed.field5),
+      motion: parseNumberWithFallback(feed.field8),
+      flame: parseNumberWithFallback(feed.field4),
     }))
     .filter((row) => row.timestamp instanceof Date && !Number.isNaN(row.timestamp.getTime()))
     .sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
