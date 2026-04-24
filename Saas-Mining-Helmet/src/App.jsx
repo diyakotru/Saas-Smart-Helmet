@@ -10,6 +10,8 @@ import AnalyticsOverall from "./pages/analytics-overall.jsx";
 import AnalyticsTemperature from "./pages/analytics-temperature.jsx";
 import AnalyticsHumidity from "./pages/analytics-humidity.jsx";
 import AnalyticsGas from "./pages/analytics-gas.jsx";
+import AnalyticsMotion from "./pages/analytics-motion.jsx";
+import AnalyticsFlame from "./pages/analytics-flame.jsx";
 
 export default function App() {
   return (
@@ -28,6 +30,8 @@ export default function App() {
         <Route path="/analytics/temperature" element={<AnalyticsTemperature />} />
         <Route path="/analytics/humidity" element={<AnalyticsHumidity />} />
         <Route path="/analytics/gas" element={<AnalyticsGas />} />
+        <Route path="/analytics/motion" element={<AnalyticsMotion />} />
+        <Route path="/analytics/flame" element={<AnalyticsFlame />} />
 
         {/* DATABASE PAGE */}
         <Route path="/database" element={<Database />} />

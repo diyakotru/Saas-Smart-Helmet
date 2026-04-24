@@ -45,7 +45,7 @@ export default function Database() {
           {[
             { id: 'workers', label: 'Workers', icon: '👥' },
             { id: 'helmets', label: 'Helmet Assignments', icon: '🪖' },
-            { id: 'history', label: 'Sensor Data History', icon: '📊' },
+        { id: 'history', label: 'Sensor Data History (Temp, Gas, Motion, Flame)', icon: '📊' },
           ].map((tab) => (
             <button
               key={tab.id}
@@ -64,6 +64,9 @@ export default function Database() {
 
         {/* Tab Content */}
         <div className="space-y-6 bg-gray-900 p-6 rounded-xl shadow-2xl shadow-gray-950/50 border border-gray-800 animate-slide-in-up-content">
+        <div className="rounded-lg border border-gray-800 bg-gray-950/50 p-4 text-sm text-gray-400">
+          Current helmet telemetry includes gas, temperature, humidity, MPU6050 motion, and flame detection.
+        </div>
           {activeTab === 'workers' && <WorkerListTable />}
           {activeTab === 'helmets' && <HelmetAssignmentTable />}
           {activeTab === 'history' && <SensorDataHistoryTable />}

@@ -9,6 +9,8 @@ const MOCK_HISTORY = [
     timestamp: '2024-11-19 14:32:15',
     temperature: 28.5,
     gasLevels: 12,
+      motion: 1.2,
+      flame: 0,
     fallDetected: false,
     batteryLevel: 85,
   },
@@ -18,6 +20,8 @@ const MOCK_HISTORY = [
     timestamp: '2024-11-19 14:31:45',
     temperature: 29.2,
     gasLevels: 15,
+      motion: 1.5,
+      flame: 0,
     fallDetected: false,
     batteryLevel: 78,
   },
@@ -27,6 +31,8 @@ const MOCK_HISTORY = [
     timestamp: '2024-11-19 14:31:20',
     temperature: 31.8,
     gasLevels: 45, // Warning level
+      motion: 2.8,
+      flame: 0,
     fallDetected: false,
     batteryLevel: 92,
   },
@@ -36,6 +42,8 @@ const MOCK_HISTORY = [
     timestamp: '2024-11-19 14:30:50',
     temperature: 27.3,
     gasLevels: 8,
+      motion: 0.8,
+      flame: 0,
     fallDetected: false,
     batteryLevel: 88,
   },
@@ -45,6 +53,8 @@ const MOCK_HISTORY = [
     timestamp: '2024-11-19 14:30:15',
     temperature: 32.1,
     gasLevels: 22,
+      motion: 4.4,
+      flame: 1,
     fallDetected: true, // Fall detected
     batteryLevel: 72,
   },
@@ -54,6 +64,8 @@ const MOCK_HISTORY = [
     timestamp: '2024-11-19 14:29:40',
     temperature: 26.8,
     gasLevels: 11,
+      motion: 1.0,
+      flame: 0,
     fallDetected: false,
     batteryLevel: 81,
   },
@@ -63,6 +75,8 @@ const MOCK_HISTORY = [
     timestamp: '2024-11-19 14:25:10',
     temperature: 28.2,
     gasLevels: 13,
+      motion: 1.1,
+      flame: 0,
     fallDetected: false,
     batteryLevel: 86,
   },
@@ -72,6 +86,8 @@ const MOCK_HISTORY = [
     timestamp: '2024-11-19 14:20:05',
     temperature: 29.5,
     gasLevels: 16,
+      motion: 1.3,
+      flame: 0,
     fallDetected: false,
     batteryLevel: 79,
   },
@@ -130,6 +146,17 @@ export default function SensorDataHistoryTable() {
     if (gas > 20) return 'text-yellow-500' // Warning
     return 'text-teal-400' // Safe
   }
+
+  const getMotionColor = (motion) => {
+    if (motion > 4) return 'text-red-500'
+    if (motion > 2) return 'text-yellow-500'
+    return 'text-teal-400'
+  }
+
+  const getFlameColor = (flame) => {
+    if (flame > 0) return 'text-red-500'
+    return 'text-teal-400'
+  }
   
   const baseFilterButtonClass = 'px-4 py-2 rounded-lg font-semibold transition-all duration-300 transform hover:scale-[1.05]';
   const activeButtonClass = 'bg-gradient-to-r from-yellow-500 to-amber-600 text-black shadow-md shadow-yellow-500/30';
@@ -158,6 +185,8 @@ export default function SensorDataHistoryTable() {
           </button>
         ))}
       </div>
+                  'motion',
+                  'flame',
 
       {/* Table */}
       <div className="overflow-x-auto border border-gray-800 rounded-lg shadow-xl shadow-gray-950/50 animate-fade-in-up">
@@ -214,6 +243,14 @@ export default function SensorDataHistoryTable() {
                 <td className={`px-4 py-3 text-sm font-semibold ${getGasColor(record.gasLevels)}`}>
                   {record.gasLevels} PPM
                 </td>
+
+                <td className={`px-4 py-3 text-sm font-semibold ${getMotionColor(record.motion)}`}>
+                  {record.motion}
+                </td>
+
+                <td className={`px-4 py-3 text-sm font-semibold ${getFlameColor(record.flame)}`}>
+                  {record.flame > 0 ? 'Detected' : 'Clear'}
+                </td>
 
                 <td className="px-4 py-3 text-sm">
                   {record.fallDetected ? (

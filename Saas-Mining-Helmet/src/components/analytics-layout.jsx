@@ -4,6 +4,8 @@ const NAV_ITEMS = [
   { to: "/analytics/temperature", label: "Temperature" },
   { to: "/analytics/humidity", label: "Humidity" },
   { to: "/analytics/gas", label: "Gas" },
+  { to: "/analytics/motion", label: "Motion" },
+  { to: "/analytics/flame", label: "Flame" },
   { to: "/analytics/overall", label: "Overall" },
 ];
 
@@ -34,7 +36,7 @@ export default function AnalyticsLayout({ title, subtitle, children, onDownloadP
               <h1 className="text-2xl md:text-3xl font-extrabold bg-gradient-to-r from-yellow-300 to-amber-500 bg-clip-text text-transparent">
                 Analytics Center
               </h1>
-              <p className="text-xs text-gray-400 mt-1">Clean, focused insights per signal</p>
+              <p className="text-xs text-gray-400 mt-1">Clean, focused insights per signal, including motion and flame</p>
             </div>
           </div>
           <button

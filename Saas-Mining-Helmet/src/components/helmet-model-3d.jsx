@@ -82,6 +82,32 @@ export default function HelmetModel3D({ hoveredSensor }) {
       return g;
     }
 
+    function createMotionSensor() {
+      const g = new THREE.Group();
+      const body = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.06, 0.08), metallicMaterial.clone());
+      g.add(body);
+
+      const led = new THREE.Mesh(new THREE.SphereGeometry(0.01), glowingCyanMaterial.clone());
+      led.position.set(0.04, 0.04, 0.03);
+      g.add(led);
+
+      g.userData = { components: { body, led } };
+      return g;
+    }
+
+    function createFlameSensor() {
+      const g = new THREE.Group();
+      const body = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.05, 0.06), darkPlasticMaterial.clone());
+      g.add(body);
+
+      const led = new THREE.Mesh(new THREE.SphereGeometry(0.01), redLedMaterial.clone());
+      led.position.set(-0.03, 0.04, 0.03);
+      g.add(led);
+
+      g.userData = { components: { body, led } };
+      return g;
+    }
+
     const helmet = createHelmet();
     scene.add(helmet);
 
@@ -89,6 +115,16 @@ export default function HelmetModel3D({ hoveredSensor }) {
     gasSensor.position.set(-0.55, 0.1, 0.1);
     helmet.add(gasSensor);
     sensorObjectsRef.current["gas-detector"] = gasSensor;
+
+    const motionSensor = createMotionSensor();
+    motionSensor.position.set(0.2, -0.1, 0.45);
+    helmet.add(motionSensor);
+    sensorObjectsRef.current["motion"] = motionSensor;
+
+    const flameSensor = createFlameSensor();
+    flameSensor.position.set(0.45, 0.05, 0.1);
+    helmet.add(flameSensor);
+    sensorObjectsRef.current["flame"] = flameSensor;
 
     // --- ANIMATION LOOP ---
     function animate() {

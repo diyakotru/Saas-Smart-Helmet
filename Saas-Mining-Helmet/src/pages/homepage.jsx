@@ -10,6 +10,8 @@ export default function HomePage() {
     { id: "gas-detector", name: "Gas Detector (MQ-X)", icon: "💨" },
     { id: "temperature", name: "Temperature/Humidity", icon: "🌡️" },
     { id: "buzzer", name: "Buzzer/Audio Alert", icon: "🔔" },
+    { id: "motion", name: "MPU6050", icon: "🧭" },
+    { id: "flame", name: "Flame Sensor", icon: "🔥" },
   ];
 
   const getCurrentSensorDetails = (id) => {
@@ -34,6 +36,20 @@ export default function HomePage() {
           status: "Normal",
           brief: "Tracks thermal comfort to reduce heat stress and dehydration risk.",
           desc: "Tracks environmental temperature and humidity to alert for heat stress or extreme cold conditions.",
+        };
+      case "motion":
+        return {
+          tag: "Motion Tracking",
+          status: "Active",
+          brief: "MPU6050 measures acceleration and rotation for motion tracking.",
+          desc: "Measures acceleration and rotation (motion tracking) to detect sudden movement, impact, or falls.",
+        };
+      case "flame":
+        return {
+          tag: "Fire Detection",
+          status: "Monitoring",
+          brief: "Flame Sensor detects fire or flame presence.",
+          desc: "Detects fire or flame presence to trigger rapid response when heat sources are present.",
         };
       case "buzzer":
         return {
@@ -182,6 +198,8 @@ export default function HomePage() {
                       sensor.id === "helmet-light" ? "bg-red-500 animate-pulse" :
                       sensor.id === "gas-detector" ? "bg-emerald-500" :
                       sensor.id === "temperature" ? "bg-orange-500" :
+                      sensor.id === "motion" ? "bg-cyan-500" :
+                      sensor.id === "flame" ? "bg-red-400" :
                       "bg-purple-500"
                     }`}></div>
                   </div>
@@ -363,6 +381,16 @@ export default function HomePage() {
                   <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
                   <span className="text-sm text-white">Heat stress risk in Tunnel 4</span>
                   <span className="text-xs text-gray-400 ml-auto">15 min ago</span>
+                </div>
+                <div className="flex items-center gap-3 p-3 bg-cyan-900/20 border border-cyan-800/50 rounded-lg">
+                  <div className="w-2 h-2 bg-cyan-400 rounded-full"></div>
+                  <span className="text-sm text-white">Motion spike flagged on MPU6050</span>
+                  <span className="text-xs text-gray-400 ml-auto">21 min ago</span>
+                </div>
+                <div className="flex items-center gap-3 p-3 bg-red-900/20 border border-red-800/50 rounded-lg">
+                  <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+                  <span className="text-sm text-white">Flame sensor alert cleared in Zone C</span>
+                  <span className="text-xs text-gray-400 ml-auto">31 min ago</span>
                 </div>
               </div>
             </div>

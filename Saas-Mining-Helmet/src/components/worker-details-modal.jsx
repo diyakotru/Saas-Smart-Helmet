@@ -143,6 +143,10 @@ export default function WorkerDetailsModal({ worker, onClose, onSave }) {
               </span>
             )}
           </div>
+
+          <div className="rounded-lg border border-gray-800 bg-black/30 p-3 text-xs text-gray-400">
+            Helmet telemetry includes gas, temperature, humidity, MPU6050 motion tracking, and flame detection.
+          </div>
         </div>
 
         <div className="mt-6 flex justify-end gap-3">

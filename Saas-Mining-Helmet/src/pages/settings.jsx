@@ -16,14 +16,13 @@ export default function Settings() {
         : "bg-gray-600 border-gray-600"
     }`;
 
-const toggleThumbClass = (isActive) =>
+  const toggleThumbClass = (isActive) =>
     `absolute top-1 left-1 w-5 h-5 bg-white rounded-full transition-transform duration-300 ease-in-out shadow-sm ${
       isActive ? "translate-x-6" : "translate-x-0"
     }`;
 
   return (
     <main className="min-h-screen bg-black text-gray-100 font-sans">
-      {/* Header */}
       <header className="border-b border-gray-800 backdrop-blur-sm sticky top-0 z-50 bg-black/80 shadow-md shadow-yellow-900/10">
         <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
           <div className="flex items-center gap-4">
@@ -32,17 +31,18 @@ const toggleThumbClass = (isActive) =>
                 ← Back
               </button>
             </Link>
-            <h1 className="text-3xl font-extrabold text-white bg-clip-text text-transparent bg-gradient-to-r from-yellow-400 to-amber-500">
-              Settings
-            </h1>
+            <div>
+              <h1 className="text-3xl font-extrabold text-white bg-clip-text text-transparent bg-gradient-to-r from-yellow-400 to-amber-500">
+                Settings
+              </h1>
+              <p className="text-xs text-gray-400 mt-1">Configure temperature, gas, motion, and flame monitoring</p>
+            </div>
           </div>
         </div>
       </header>
 
-      {/* Settings Content */}
       <section className="max-w-3xl mx-auto px-4 py-12">
         <div className="space-y-8">
-          {/* Display Settings */}
           <div className="bg-gray-900 p-6 rounded-xl shadow-lg border border-yellow-800/50">
             <h2 className="text-2xl font-bold mb-6 flex items-center gap-3 text-yellow-400">
               <span>⚙️</span>
@@ -50,7 +50,6 @@ const toggleThumbClass = (isActive) =>
             </h2>
 
             <div className="space-y-4">
-              {/* Dark Mode Toggle */}
               <div className="flex items-center justify-between p-4 bg-gray-800/50 rounded-lg border border-gray-700">
                 <div>
                   <h3 className="font-semibold text-white">Dark Mode</h3>
@@ -60,13 +59,10 @@ const toggleThumbClass = (isActive) =>
                   onClick={() => setDarkMode(!darkMode)}
                   className={toggleBtnClass(darkMode)}
                 >
-                  <div
-                    className={toggleThumbClass(darkMode)}
-                  />
+                  <div className={toggleThumbClass(darkMode)} />
                 </button>
               </div>
 
-              {/* Refresh Rate */}
               <div className="p-4 bg-gray-800/50 rounded-lg border border-gray-700">
                 <label className="block font-semibold text-white mb-2">
                   Dashboard Refresh Rate
@@ -85,7 +81,6 @@ const toggleThumbClass = (isActive) =>
             </div>
           </div>
 
-          {/* Notification Settings */}
           <div className="bg-gray-900 p-6 rounded-xl shadow-lg border border-yellow-800/50">
             <h2 className="text-2xl font-bold mb-6 flex items-center gap-3 text-yellow-400">
               <span>🔔</span>
@@ -93,41 +88,34 @@ const toggleThumbClass = (isActive) =>
             </h2>
 
             <div className="space-y-4">
-              {/* Alert Notifications */}
               <div className="flex items-center justify-between p-4 bg-gray-800/50 rounded-lg border border-gray-700">
                 <div>
                   <h3 className="font-semibold text-white">Alert Notifications</h3>
-                  <p className="text-sm text-gray-400">
-                    Get notified of critical alerts
-                  </p>
+                  <p className="text-sm text-gray-400">Get notified of critical alerts</p>
                 </div>
                 <button
                   onClick={() => setNotifications(!notifications)}
                   className={toggleBtnClass(notifications)}
                 >
-                  <div
-                    className={toggleThumbClass(notifications)}/>
+                  <div className={toggleThumbClass(notifications)} />
                 </button>
               </div>
 
-              {/* Email Alerts */}
               <div className="flex items-center justify-between p-4 bg-gray-800/50 rounded-lg border border-gray-700">
                 <div>
                   <h3 className="font-semibold text-white">Email Alerts</h3>
-                  <p className="text-sm text-gray-400">
-                    Receive email notifications
-                  </p>
+                  <p className="text-sm text-gray-400">Receive email notifications</p>
                 </div>
-                <button onClick={() => setEmailAlerts(!emailAlerts)}
+                <button
+                  onClick={() => setEmailAlerts(!emailAlerts)}
                   className={toggleBtnClass(emailAlerts)}
                 >
-                  <div className={toggleThumbClass(emailAlerts)}/>
+                  <div className={toggleThumbClass(emailAlerts)} />
                 </button>
               </div>
             </div>
           </div>
 
-          {/* Sensor Settings */}
           <div className="bg-gray-900 p-6 rounded-xl shadow-lg border border-yellow-800/50">
             <h2 className="text-2xl font-bold mb-6 flex items-center gap-3 text-yellow-400">
               <span>📡</span>
@@ -151,6 +139,32 @@ const toggleThumbClass = (isActive) =>
 
               <div className="p-4 bg-gray-800/50 rounded-lg border border-gray-700">
                 <label className="block font-semibold text-white mb-2">
+                  MPU6050 Motion Threshold
+                </label>
+                <input
+                  type="number"
+                  defaultValue="4"
+                  className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-yellow-500"
+                />
+                <p className="text-sm text-gray-400 mt-2">Triggers when the motion index spikes above the safe band.</p>
+              </div>
+
+              <div className="p-4 bg-gray-800/50 rounded-lg border border-gray-700">
+                <label className="block font-semibold text-white mb-2">
+                  Flame Sensor Alert Mode
+                </label>
+                <select
+                  defaultValue="critical"
+                  className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-yellow-500 transition"
+                >
+                  <option value="critical">Critical fire alert</option>
+                  <option value="warning">Warning only</option>
+                </select>
+                <p className="text-sm text-gray-400 mt-2">Flame detections are treated as emergency conditions by default.</p>
+              </div>
+
+              <div className="p-4 bg-gray-800/50 rounded-lg border border-gray-700">
+                <label className="block font-semibold text-white mb-2">
                   Temperature Alert Threshold
                 </label>
                 <input
@@ -163,7 +177,6 @@ const toggleThumbClass = (isActive) =>
             </div>
           </div>
 
-          {/* System Information */}
           <div className="bg-gray-900 p-6 rounded-xl shadow-lg border border-yellow-800/50">
             <h2 className="text-2xl font-bold mb-6 flex items-center gap-3 text-yellow-400">
               <span>ℹ️</span>

@@ -35,6 +35,9 @@ const thresholds = {
   humidityHigh: 70,
   gasDanger: 700,
   gasWarning: 300,
+  motionWarning: 2,
+  motionDanger: 4,
+  flameWarning: 1,
 };
 
 const buildAlertListFromFeeds = (feeds, limits) => {
@@ -47,6 +50,8 @@ const buildAlertListFromFeeds = (feeds, limits) => {
     const temp = parseNumberWithFallback(feed.field1);
     const humidity = parseNumberWithFallback(feed.field2);
     const gas = parseNumberWithFallback(feed.field3);
+    const motion = parseNumberWithFallback(feed.field4);
+    const flame = parseNumberWithFallback(feed.field5);
 
     if (gas != null) {
       if (gas > limits.gasDanger) {
@@ -91,6 +96,28 @@ const buildAlertListFromFeeds = (feeds, limits) => {
         value: humidity,
       });
     }
+
+    if (motion != null && motion > limits.motionWarning) {
+      alerts.push({
+        id: `motion-${feed.entry_id}`,
+        type: "Motion",
+        message: `⚙️ MPU6050 motion spike detected (${motion})`,
+        timestamp,
+        severity: motion > limits.motionDanger ? "danger" : "warning",
+        value: motion,
+      });
+    }
+
+    if (flame != null && flame >= limits.flameWarning) {
+      alerts.push({
+        id: `flame-${feed.entry_id}`,
+        type: "Flame",
+        message: `🔥 Flame sensor detected heat or flame presence (${flame})`,
+        timestamp,
+        severity: "danger",
+        value: flame,
+      });
+    }
   });
 
   return alerts
@@ -103,6 +130,8 @@ export default function LiveSensorDataPanel({ setAlertList }) {
     temperature: null,
     humidity: null,
     gasLevels: null,
+    motion: null,
+    flame: null,
     lastUpdate: null,
   });
 
@@ -140,12 +169,16 @@ export default function LiveSensorDataPanel({ setAlertList }) {
         const lastTemp = findLastValidReading(feeds, 'field1');
         const lastHum = findLastValidReading(feeds, 'field2');
         const lastGas = findLastValidReading(feeds, 'field3');
+        const lastMotion = findLastValidReading(feeds, 'field4');
+        const lastFlame = findLastValidReading(feeds, 'field5');
         const latestTime = feeds[0].created_at;
 
         setSensors({
           temperature: parseNumberWithFallback(lastTemp),
           humidity: parseNumberWithFallback(lastHum),
           gasLevels: parseNumberWithFallback(lastGas),
+          motion: parseNumberWithFallback(lastMotion),
+          flame: parseNumberWithFallback(lastFlame),
           lastUpdate: latest.created_at ? new Date(latestTime) : new Date(),
         });
 
@@ -212,6 +245,16 @@ export default function LiveSensorDataPanel({ setAlertList }) {
       return COLOR.SAFE_BG;
     }
 
+    if (type === "motion") {
+      if (value > thresholds.motionDanger) return COLOR.WARNING_BG;
+      if (value > thresholds.motionWarning) return COLOR.SAFE_BG;
+      return COLOR.SAFE_BG;
+    }
+
+    if (type === "flame") {
+      return value >= thresholds.flameWarning ? COLOR.DANGER_BG : COLOR.SAFE_BG;
+    }
+
     return COLOR.SAFE_BG;
   };
 
@@ -222,7 +265,7 @@ export default function LiveSensorDataPanel({ setAlertList }) {
     : "Waiting for data...";
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-4">
 
       {/* Temperature */}
       <Card className={`p-6 bg-gray-900 border ${COLOR.CARD_BORDER} ${COLOR.CARD_HOVER}`}>
@@ -272,6 +315,34 @@ export default function LiveSensorDataPanel({ setAlertList }) {
             : sensors.gasLevels > 300
             ? "Warning"
             : "Safe"}
+        </div>
+      </Card>
+
+      {/* MPU6050 Motion */}
+      <Card className={`p-6 bg-gray-900 border ${COLOR.CARD_BORDER} ${COLOR.CARD_HOVER}`}>
+        <p className="text-sm text-gray-400">MPU6050 Motion</p>
+        <p className={`text-3xl font-bold ${getStatusColor("motion", sensors.motion)}`}>
+          {sensors.motion ?? "--"}
+        </p>
+        <div className={`px-2 py-1 mt-2 rounded text-xs ${getStatusBg("motion", sensors.motion)}`}>
+          {sensors.motion == null
+            ? "No data"
+            : sensors.motion > thresholds.motionDanger
+            ? "Motion Spike"
+            : sensors.motion > thresholds.motionWarning
+            ? "Active Motion"
+            : "Stable"}
+        </div>
+      </Card>
+
+      {/* Flame Sensor */}
+      <Card className={`p-6 bg-gray-900 border ${COLOR.CARD_BORDER} ${COLOR.CARD_HOVER}`}>
+        <p className="text-sm text-gray-400">Flame Sensor</p>
+        <p className={`text-3xl font-bold ${getStatusColor("gas", sensors.flame)}`}>
+          {sensors.flame == null ? "--" : sensors.flame > 0 ? "Detected" : "Clear"}
+        </p>
+        <div className={`px-2 py-1 mt-2 rounded text-xs ${getStatusBg("flame", sensors.flame)}`}>
+          {sensors.flame == null ? "No data" : sensors.flame > 0 ? "Fire Alert" : "Normal"}
         </div>
       </Card>
 

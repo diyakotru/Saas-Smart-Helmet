@@ -84,8 +84,11 @@ export default function Dashboard() {
         <div className="bg-gray-900 p-6 rounded-xl shadow-lg border border-yellow-800/50 animate-slide-in-left">
           <h2 className="text-xl font-bold mb-4 flex items-center gap-3 text-yellow-400">
             <span className="w-1.5 h-6 bg-gradient-to-b from-yellow-400 to-amber-600 rounded-full animate-pulse-vertical" />
-            Live Sensor Data
+            Live Sensor Data, Motion, and Flame Monitoring
           </h2>
+          <p className="text-sm text-gray-400 mb-4">
+            Temperature, humidity, gas, MPU6050 motion, and flame detection are streamed into the dashboard in real time.
+          </p>
           {/* Pass setAlertList so the live panel can add/remove real alerts */}
           <LiveSensorDataPanel setAlertList={setAlertList} />
         </div>
@@ -130,6 +133,34 @@ export default function Dashboard() {
                 <iframe
                   title="ThingSpeak Gas"
                   src={`https://thingspeak.com/channels/${THINGSPEAK_CHANNEL_ID}/charts/3?bgcolor=0B0F14&color=FBBF24&dynamic=true&type=line&results=30&linewidth=3&gridcolor=2A2F3A&xaxis=Date&yaxis=Value`}
+                  style={IFRAME_STYLE_FULL}
+                />
+              </div>
+            </div>
+
+            <div className="bg-gray-900 p-6 rounded-xl shadow-lg border border-yellow-800/50 animate-slide-in-up flex flex-col">
+              <h2 className="text-xl font-bold mb-4 flex items-center gap-3 text-yellow-400">
+                <span></span>
+                MPU6050 Motion (live)
+              </h2>
+              <div className="w-full bg-[#0f1720] rounded-md overflow-hidden h-72 md:h-80 lg:h-96">
+                <iframe
+                  title="ThingSpeak Motion"
+                  src={`https://thingspeak.com/channels/${THINGSPEAK_CHANNEL_ID}/charts/4?bgcolor=0B0F14&color=34D399&dynamic=true&type=line&results=30&linewidth=3&gridcolor=2A2F3A&xaxis=Date&yaxis=Value`}
+                  style={IFRAME_STYLE_FULL}
+                />
+              </div>
+            </div>
+
+            <div className="bg-gray-900 p-6 rounded-xl shadow-lg border border-yellow-800/50 animate-slide-in-up flex flex-col">
+              <h2 className="text-xl font-bold mb-4 flex items-center gap-3 text-yellow-400">
+                <span></span>
+                Flame Sensor (live)
+              </h2>
+              <div className="w-full bg-[#0f1720] rounded-md overflow-hidden h-72 md:h-80 lg:h-96">
+                <iframe
+                  title="ThingSpeak Flame"
+                  src={`https://thingspeak.com/channels/${THINGSPEAK_CHANNEL_ID}/charts/5?bgcolor=0B0F14&color=F97316&dynamic=true&type=line&results=30&linewidth=3&gridcolor=2A2F3A&xaxis=Date&yaxis=Value`}
                   style={IFRAME_STYLE_FULL}
                 />
               </div>

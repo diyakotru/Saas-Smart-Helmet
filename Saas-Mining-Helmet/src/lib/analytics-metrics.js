@@ -4,6 +4,9 @@ export const ANALYTICS_THRESHOLDS = {
   humidityHigh: 70,
   gasWarning: 300,
   gasDanger: 700,
+  motionWarning: 2,
+  motionDanger: 4,
+  flameWarning: 1,
 };
 
 const parseNumberWithFallback = (value, fallback = null) => {
@@ -21,6 +24,8 @@ export const normalizeFeeds = (feeds) => {
       temperature: parseNumberWithFallback(feed.field1),
       humidity: parseNumberWithFallback(feed.field2),
       gas: parseNumberWithFallback(feed.field3),
+      motion: parseNumberWithFallback(feed.field4),
+      flame: parseNumberWithFallback(feed.field5),
     }))
     .filter((row) => row.timestamp instanceof Date && !Number.isNaN(row.timestamp.getTime()))
     .sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
@@ -30,7 +35,9 @@ export const isUnsafeReading = (row, thresholds) => {
   if (!row) return false;
   const tempUnsafe = row.temperature != null && row.temperature > thresholds.tempHigh;
   const gasUnsafe = row.gas != null && row.gas > thresholds.gasWarning;
-  return tempUnsafe || gasUnsafe;
+  const motionUnsafe = row.motion != null && row.motion > thresholds.motionDanger;
+  const flameUnsafe = row.flame != null && row.flame >= thresholds.flameWarning;
+  return tempUnsafe || gasUnsafe || motionUnsafe || flameUnsafe;
 };
 
 export const buildIncidents = (rows, thresholds) => {
@@ -55,6 +62,26 @@ export const buildIncidents = (rows, thresholds) => {
           message: `Gas elevated at ${row.gas} ADC`,
         });
       }
+    }
+
+    if (row.motion != null && row.motion > thresholds.motionWarning) {
+      incidents.push({
+        id: `motion-${row.id}`,
+        timestamp: row.timestamp,
+        type: row.motion > thresholds.motionDanger ? "Motion Spike" : "Motion Alert",
+        severity: row.motion > thresholds.motionDanger ? "High" : "Medium",
+        message: `Motion intensity reached ${row.motion}`,
+      });
+    }
+
+    if (row.flame != null && row.flame >= thresholds.flameWarning) {
+      incidents.push({
+        id: `flame-${row.id}`,
+        timestamp: row.timestamp,
+        type: "Flame Alert",
+        severity: "High",
+        message: `Flame sensor detected heat or flame presence at ${row.flame}`,
+      });
     }
 
     if (row.temperature != null && row.temperature > thresholds.tempHigh) {
@@ -175,6 +202,7 @@ export const detectTrendSignals = (rows, thresholds) => {
   const gasSeries = getRecentSeries(rows, "gas", 5);
   const temperatureSeries = getRecentSeries(rows, "temperature", 5);
   const humiditySeries = getRecentSeries(rows, "humidity", 5);
+  const motionSeries = getRecentSeries(rows, "motion", 5);
 
   if (isStrictlyIncreasing(gasSeries) && gasSeries[gasSeries.length - 1] >= thresholds.gasWarning) {
     signals.push({
@@ -213,6 +241,24 @@ export const detectTrendSignals = (rows, thresholds) => {
     });
   }
 
+  if (motionSeries.length >= 4 && motionSeries.every((value, index) => index === 0 || value > motionSeries[index - 1])) {
+    signals.push({
+      id: "motion-rising",
+      label: "Motion activity rising",
+      severity: motionSeries[motionSeries.length - 1] > thresholds.motionDanger ? "High" : "Medium",
+      message: `Motion intensity has increased across ${motionSeries.length} readings and is now ${motionSeries[motionSeries.length - 1]}.`,
+    });
+  }
+
+  if (latest && latest.flame != null && latest.flame >= thresholds.flameWarning) {
+    signals.push({
+      id: "flame-latest",
+      label: "Flame detected",
+      severity: "High",
+      message: `Latest flame reading indicates fire presence (${latest.flame}).`,
+    });
+  }
+
   return signals;
 };
 
@@ -229,6 +275,14 @@ export const calculateAiRiskLevel = ({ rows, incidents, unsafeMinutes, alertsPer
 
   if (latest?.temperature != null && latest.temperature > thresholds.tempHigh) {
     score += 2;
+  }
+
+  if (latest?.motion != null && latest.motion > thresholds.motionWarning) {
+    score += latest.motion > thresholds.motionDanger ? 3 : 1;
+  }
+
+  if (latest?.flame != null && latest.flame >= thresholds.flameWarning) {
+    score += 4;
   }
 
   if (unsafeMinutes >= 60) score += 2;
@@ -253,6 +307,8 @@ export const calculateAiRiskLevel = ({ rows, incidents, unsafeMinutes, alertsPer
 
   if (latest?.gas != null) reasonParts.push(`latest gas ${latest.gas} ADC`);
   if (latest?.temperature != null) reasonParts.push(`latest temperature ${latest.temperature}°C`);
+  if (latest?.motion != null) reasonParts.push(`latest motion ${latest.motion}`);
+  if (latest?.flame != null) reasonParts.push(`latest flame ${latest.flame}`);
   if (unsafeMinutes > 0) reasonParts.push(`${unsafeMinutes} unsafe minute${unsafeMinutes === 1 ? "" : "s"}`);
   if (alertsPerShift?.count > 0) reasonParts.push(`${alertsPerShift.count} alert${alertsPerShift.count === 1 ? "" : "s"} this shift`);
   if (Array.isArray(trendSignals) && trendSignals.length > 0) {
@@ -314,6 +370,14 @@ export const buildAiRecommendations = ({ rows, thresholds, trendSignals, riskLev
     recommendations.push("Adjust airflow and dehumidification to restore humidity to the comfort band.");
   }
 
+  if (latest?.motion != null && latest.motion >= thresholds.motionWarning) {
+    recommendations.push("Review motion tracking because MPU6050 readings suggest active movement or impact.");
+  }
+
+  if (latest?.flame != null && latest.flame >= thresholds.flameWarning) {
+    recommendations.push("Treat the flame detection signal as a fire alert and trigger the response workflow.");
+  }
+
   if (Array.isArray(trendSignals) && trendSignals.some((signal) => signal.id === "gas-rising")) {
     recommendations.push("Escalate monitoring and keep extraction fans active because gas is rising continuously.");
   }
@@ -348,6 +412,8 @@ export const buildRiskInsights = (incidents, rows = [], trendSignals = []) => {
 
   const gasIncidents = incidents.filter((incident) => incident.type.includes("Gas"));
   const tempIncidents = incidents.filter((incident) => incident.type.includes("Temperature"));
+  const motionIncidents = incidents.filter((incident) => incident.type.includes("Motion"));
+  const flameIncidents = incidents.filter((incident) => incident.type.includes("Flame"));
   const latestReading = getLatestReading(rows);
   const insights = [];
 
@@ -368,6 +434,12 @@ export const buildRiskInsights = (incidents, rows = [], trendSignals = []) => {
   const tempInsight = buildHourlyInsight(tempIncidents, "Temperature");
   if (tempInsight) insights.push(tempInsight);
 
+  const motionInsight = buildHourlyInsight(motionIncidents, "Motion");
+  if (motionInsight) insights.push(motionInsight);
+
+  const flameInsight = buildHourlyInsight(flameIncidents, "Flame");
+  if (flameInsight) insights.push(flameInsight);
+
   const daySet = new Set(incidents.map((incident) => incident.timestamp.toDateString()));
   if (daySet.size >= 2) {
     insights.push("Alerts repeat across multiple days, suggesting a persistent operational pattern.");
@@ -379,6 +451,14 @@ export const buildRiskInsights = (incidents, rows = [], trendSignals = []) => {
 
   if (latestReading?.gas != null && latestReading.gas > 0) {
     insights.push(`Latest gas reading is ${latestReading.gas} ADC, which keeps the risk model responsive to current conditions.`);
+  }
+
+  if (latestReading?.motion != null) {
+    insights.push(`Latest motion reading is ${latestReading.motion}, feeding motion tracking into the risk model.`);
+  }
+
+  if (latestReading?.flame != null) {
+    insights.push(`Latest flame reading is ${latestReading.flame}, which is monitored as a fire detection signal.`);
   }
 
   if (insights.length === 0) {
@@ -394,6 +474,8 @@ export const buildComplianceRows = (rows, thresholds, limit = 20) => {
     const alerts = [];
     if (row.gas != null && row.gas > thresholds.gasWarning) alerts.push("Gas");
     if (row.temperature != null && row.temperature > thresholds.tempHigh) alerts.push("Temperature");
+    if (row.motion != null && row.motion > thresholds.motionWarning) alerts.push("Motion");
+    if (row.flame != null && row.flame >= thresholds.flameWarning) alerts.push("Flame");
     if (
       row.humidity != null &&
       (row.humidity < thresholds.humidityLow || row.humidity > thresholds.humidityHigh)
@@ -406,6 +488,8 @@ export const buildComplianceRows = (rows, thresholds, limit = 20) => {
       temperature: row.temperature,
       humidity: row.humidity,
       gas: row.gas,
+      motion: row.motion,
+      flame: row.flame,
       alerts: alerts.length > 0 ? alerts.join("; ") : "None",
       unsafe: isUnsafeReading(row, thresholds) ? "Yes" : "No",
     };

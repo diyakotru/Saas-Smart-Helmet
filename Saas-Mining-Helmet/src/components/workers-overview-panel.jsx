@@ -257,6 +257,9 @@ export default function WorkersOverviewPanel() {
           }}
         />
       )}
+      <div className="rounded-lg border border-gray-800 bg-gray-950/50 p-4 text-sm text-gray-400">
+        Helmet sensors now include gas, temperature, humidity, MPU6050 motion tracking, and flame detection.
+      </div>
          {" "}
     </div>
   );

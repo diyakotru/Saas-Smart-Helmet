@@ -23,7 +23,7 @@ import {
   normalizeFeeds,
 } from "../lib/analytics-metrics";
 import { downloadCompliancePDF, downloadPDF } from "../lib/analytics-report";
-import { FiCloud, FiDroplet, FiThermometer } from "react-icons/fi";
+import { FiActivity, FiAlertTriangle, FiCloud, FiDroplet, FiThermometer } from "react-icons/fi";
 
 const cardBase = "bg-[#0d1117] border border-gray-800 rounded-2xl transition hover:border-gray-700";
 const sectionCard = `${cardBase} p-6`;
@@ -131,9 +131,12 @@ export default function AnalyticsOverall() {
   const latestTempAverage = useMemo(() => computeAverageValue(rows, "temperature"), [rows]);
   const latestHumidityAverage = useMemo(() => computeAverageValue(rows, "humidity"), [rows]);
   const latestGasAverage = useMemo(() => computeAverageValue(rows, "gas"), [rows]);
+  const latestMotionAverage = useMemo(() => computeAverageValue(rows, "motion"), [rows]);
+  const flameEvents = useMemo(() => rows.filter((row) => Number.isFinite(row?.flame) && row.flame > 0).length, [rows]);
   const tempDelta = useMemo(() => computeTrendDelta(rows, "temperature"), [rows]);
   const humidityDelta = useMemo(() => computeTrendDelta(rows, "humidity"), [rows]);
   const gasDelta = useMemo(() => computeTrendDelta(rows, "gas"), [rows]);
+  const motionDelta = useMemo(() => computeTrendDelta(rows, "motion"), [rows]);
   const latestIncident = incidents[0] || null;
   const latestReading = rows[rows.length - 1] || null;
   const displayComplianceRows = showAllCompliance ? complianceRows : complianceRows.slice(0, 5);
@@ -155,9 +158,20 @@ export default function AnalyticsOverall() {
     "Safe",
     "Elevated"
   );
+  const latestMotionStatus = getMetricStatus(
+    latestReading?.motion,
+    ANALYTICS_THRESHOLDS.motionWarning,
+    "Stable",
+    "Active"
+  );
+  const latestFlameStatus = latestReading?.flame != null && latestReading.flame >= ANALYTICS_THRESHOLDS.flameWarning
+    ? { label: "Detected", tone: "text-red-300" }
+    : { label: "Clear", tone: "text-emerald-300" };
   const temperatureTrendSignal = trendSignals.find((signal) => signal.id === "temperature-rising");
   const humidityTrendSignal = trendSignals.find((signal) => signal.id === "humidity-dropping");
   const gasTrendSignal = trendSignals.find((signal) => signal.id === "gas-rising");
+  const motionTrendSignal = trendSignals.find((signal) => signal.id === "motion-rising");
+  const flameTrendSignal = trendSignals.find((signal) => signal.id === "flame-latest");
 
   const handleExportPdf = () => {
     downloadCompliancePDF({
@@ -176,6 +190,8 @@ export default function AnalyticsOverall() {
       temperatureStatus: latestTemperatureStatus.label,
       humidityStatus: latestHumidityStatus.label,
       gasStatus: latestGasStatus.label,
+      motionStatus: latestMotionStatus.label,
+      flameStatus: latestFlameStatus.label,
     });
   };
 
@@ -216,12 +232,22 @@ export default function AnalyticsOverall() {
       badgeTone: getDeltaTone(gasDelta),
       signal: gasTrendSignal?.label || "Gas steady over the last hour",
     },
+    {
+      id: "motion",
+      label: "Avg Motion",
+      icon: FiActivity,
+      value: latestMotionAverage != null ? `${latestMotionAverage.toFixed(2)}` : "--",
+      delta: formatSignedMetricDelta(motionDelta, "", 2),
+      tone: "text-emerald-300",
+      badgeTone: getDeltaTone(motionDelta),
+      signal: motionTrendSignal?.label || "Motion steady over the last hour",
+    },
   ];
 
   return (
     <AnalyticsLayout
       title="Overall Analytics"
-      subtitle="Unified view of temperature, humidity, and gas trends."
+      subtitle="Unified view of temperature, humidity, gas, motion, and flame trends."
       onDownloadPage={handleDownloadPageReport}
     >
       <section className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-4 text-center">
@@ -259,12 +285,12 @@ export default function AnalyticsOverall() {
             {latestReading ? `${latestReading.temperature ?? "--"}°C | ${latestReading.gas ?? "--"} ADC` : "No data"}
           </p>
           <p className="text-sm text-gray-400 mt-2">
-            {latestReading ? `Humidity ${latestReading.humidity ?? "--"}%` : "Waiting for live feed"}
+            {latestReading ? `Humidity ${latestReading.humidity ?? "--"}% | Motion ${latestReading.motion ?? "--"} | Flame ${latestReading.flame ?? "--"}` : "Waiting for live feed"}
           </p>
         </div>
       </section>
 
-      <section className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <section className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-4">
         <div className={`${cardBase} p-5 border-l-4 border-l-yellow-400 text-left`}>
           <p className="text-xs uppercase text-gray-500">Temperature</p>
           <p className={`text-lg font-semibold mt-1 ${latestTemperatureStatus.tone}`}>
@@ -285,6 +311,21 @@ export default function AnalyticsOverall() {
             {latestReading?.gas != null ? `${latestReading.gas} ADC — ${latestGasStatus.label}` : "No reading"}
           </p>
           <p className="text-sm text-gray-400 mt-2">{latestGasStatus.label === "Elevated" ? "Improve extraction and recheck the workspace." : "No hazardous spikes in the window."}</p>
+        </div>
+        <div className={`${cardBase} p-5 border-l-4 border-l-emerald-400 text-left`}>
+          <p className="text-xs uppercase text-gray-500">MPU6050 Motion</p>
+          <p className={`text-lg font-semibold mt-1 ${latestMotionStatus.tone}`}>
+            {latestReading?.motion != null ? `${latestReading.motion} — ${latestMotionStatus.label}` : "No reading"}
+          </p>
+          <p className="text-sm text-gray-400 mt-2">Motion tracking helps spot falls or abrupt helmet movement.</p>
+        </div>
+        <div className={`${cardBase} p-5 border-l-4 border-l-orange-400 text-left`}>
+          <p className="text-xs uppercase text-gray-500">Flame Sensor</p>
+          <p className={`text-lg font-semibold mt-1 ${latestFlameStatus.tone}`}>
+            {latestReading?.flame != null ? `${latestReading.flame} — ${latestFlameStatus.label}` : "No reading"}
+          </p>
+          <p className="text-sm text-gray-400 mt-2">Any flame signal is treated as a fire alert.
+          </p>
         </div>
       </section>
 
@@ -451,6 +492,8 @@ export default function AnalyticsOverall() {
                 <th className="py-2 pr-4">Temp (°C)</th>
                 <th className="py-2 pr-4">Humidity (%)</th>
                 <th className="py-2 pr-4">Gas (ADC)</th>
+                <th className="py-2 pr-4">Motion</th>
+                <th className="py-2 pr-4">Flame</th>
                 <th className="py-2 pr-4">Alerts</th>
                 <th className="py-2">Unsafe</th>
               </tr>
@@ -458,14 +501,14 @@ export default function AnalyticsOverall() {
             <tbody className="text-gray-300">
               {isLoading && (
                 <tr>
-                  <td className="py-3" colSpan={6}>
+                  <td className="py-3" colSpan={8}>
                     Loading compliance records...
                   </td>
                 </tr>
               )}
               {!isLoading && complianceRows.length === 0 && (
                 <tr>
-                  <td className="py-3" colSpan={6}>
+                  <td className="py-3" colSpan={8}>
                     No records available yet.
                   </td>
                 </tr>
@@ -476,6 +519,8 @@ export default function AnalyticsOverall() {
                   <td className="py-3 pr-4">{row.temperature ?? "--"}</td>
                   <td className="py-3 pr-4">{row.humidity ?? "--"}</td>
                   <td className="py-3 pr-4">{row.gas ?? "--"}</td>
+                  <td className="py-3 pr-4">{row.motion ?? "--"}</td>
+                  <td className="py-3 pr-4">{row.flame ?? "--"}</td>
                   <td className="py-3 pr-4">{row.alerts}</td>
                   <td className="py-3">{row.unsafe}</td>
                 </tr>
@@ -493,7 +538,7 @@ export default function AnalyticsOverall() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-300">
           <p>Temperature and humidity remain within comfortable thresholds for workers.</p>
           <p>{trendSignals.length > 0 ? trendSignals[0].message : "Gas levels show no rapid spikes; maintain current ventilation profile."}</p>
-          <p>Use the PDF export for compliance submissions and daily safety briefs.</p>
+          <p>Motion and flame signals are tracked alongside air quality for faster incident response.</p>
         </div>
         {error && <p className="text-sm text-red-400 mt-4">{error}</p>}
       </section>

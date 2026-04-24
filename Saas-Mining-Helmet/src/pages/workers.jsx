@@ -18,9 +18,12 @@ export default function Workers() {
               </button>
             </Link>
 
-            <h1 className="text-3xl font-extrabold text-white bg-clip-text text-transparent bg-gradient-to-r from-yellow-400 to-amber-500 animate-fade-in">
-              Workers Overview
-            </h1>
+            <div>
+              <h1 className="text-3xl font-extrabold text-white bg-clip-text text-transparent bg-gradient-to-r from-yellow-400 to-amber-500 animate-fade-in">
+                Workers Overview
+              </h1>
+              <p className="text-xs text-gray-400 mt-1">Helmet telemetry now includes MPU6050 motion tracking and flame detection.</p>
+            </div>
           </div>
 
           <div className="flex items-center gap-2 text-sm text-yellow-400">

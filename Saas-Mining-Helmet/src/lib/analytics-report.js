@@ -94,6 +94,8 @@ const addComplianceTable = (doc, y, rows = []) => {
     { header: "Temp (C)", width: 20 },
     { header: "Humidity (%)", width: 26 },
     { header: "Gas (ADC)", width: 24 },
+    { header: "Motion", width: 20 },
+    { header: "Flame", width: 18 },
     { header: "Alerts", width: 42 },
     { header: "Unsafe", width: 16 },
   ];
@@ -104,6 +106,8 @@ const addComplianceTable = (doc, y, rows = []) => {
       temperature: "--",
       humidity: "--",
       gas: "--",
+      motion: "--",
+      flame: "--",
       alerts: "No compliance rows in selected window",
       unsafe: "--",
     },
@@ -122,6 +126,8 @@ const addComplianceTable = (doc, y, rows = []) => {
       row?.temperature ?? "--",
       row?.humidity ?? "--",
       row?.gas ?? "--",
+      row?.motion ?? "--",
+      row?.flame ?? "--",
       row?.alerts ?? "None",
       row?.unsafe ?? "No",
     ];
@@ -195,6 +201,8 @@ export const downloadPDF = ({
   temperatureStatus,
   humidityStatus,
   gasStatus,
+  motionStatus,
+  flameStatus,
   generatedAt = new Date(),
 }) => {
   const doc = new jsPDF({ unit: "mm", format: "a4" });
@@ -222,7 +230,7 @@ export const downloadPDF = ({
   y = addBullet(
     doc,
     y,
-    `Latest Reading: ${latestReading ? `${latestReading.temperature ?? "--"}°C, ${latestReading.humidity ?? "--"}%, ${latestReading.gas ?? "--"} ADC` : "No live sensor data available."}`
+    `Latest Reading: ${latestReading ? `${latestReading.temperature ?? "--"}°C, ${latestReading.humidity ?? "--"}%, ${latestReading.gas ?? "--"} ADC, motion ${latestReading.motion ?? "--"}, flame ${latestReading.flame ?? "--"}` : "No live sensor data available."}`
   );
 
   y = addSectionTitle(doc, y, "2. Safety Metrics");
@@ -242,6 +250,8 @@ export const downloadPDF = ({
   y = addBullet(doc, y, `Temperature Status: ${temperatureStatus || "No reading"}`);
   y = addBullet(doc, y, `Humidity Status: ${humidityStatus || "No reading"}`);
   y = addBullet(doc, y, `Gas Status: ${gasStatus || "No reading"}`);
+  y = addBullet(doc, y, `Motion Status: ${motionStatus || "No reading"}`);
+  y = addBullet(doc, y, `Flame Status: ${flameStatus || "No reading"}`);
 
   y = addParagraph(doc, y + 2, `Generated on ${generatedAt.toLocaleString()}`, {
     size: 9,
