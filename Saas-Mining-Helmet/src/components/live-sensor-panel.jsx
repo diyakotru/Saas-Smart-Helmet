@@ -138,6 +138,8 @@ export default function LiveSensorDataPanel({ setAlertList, setSensorValues }) {
 
   const [isFetching, setIsFetching] = useState(false);
   const [fetchError, setFetchError] = useState(null);
+  const [mqttError, setMqttError] = useState(null);
+  const [mqttStatus, setMqttStatus] = useState("connecting");
 
   const isConfigured =
     THINGSPEAK_CHANNEL_ID.length > 0 &&
@@ -211,7 +213,7 @@ export default function LiveSensorDataPanel({ setAlertList, setSensorValues }) {
         setFetchError(null);
 
       } catch (err) {
-        if (!isMounted) setFetchError(err.message);
+        if (isMounted) setFetchError(err.message);
       } finally {
         if (isMounted) setIsFetching(false);
       }
@@ -227,84 +229,123 @@ export default function LiveSensorDataPanel({ setAlertList, setSensorValues }) {
   }, [isConfigured, setAlertList]);
 
   useEffect(() => {
-    const client = mqtt.connect("ws://broker.hivemq.com:8000/mqtt");
+    if (typeof window === "undefined") {
+      return undefined;
+    }
+
+    let client;
+    let isActive = true;
+
+    try {
+      client = mqtt.connect("wss://broker.hivemq.com:8884/mqtt", {
+        reconnectPeriod: 5000,
+      });
+    } catch (error) {
+      console.error("MQTT connection failed", error);
+      setMqttStatus("error");
+      setMqttError(error instanceof Error ? error.message : "MQTT connection failed");
+      return undefined;
+    }
 
     client.on("connect", () => {
-  console.log("✅ MQTT Connected");
-  client.subscribe("iot/alerts");
-  client.subscribe("iot/sensor/data"); // 🔥 NEW
-});
+      if (!isActive) return;
 
-   client.on("message", (topic, message) => {
+      console.log("Connected to MQTT");
+      setMqttStatus("connected");
+      setMqttError(null);
 
-  // 🔴 ALERTS
-  if (topic === "iot/alerts") {
-    const msg = message.toString();
-
-    let alertMessage = "";
-    let alertType = "";
-
-    if (msg === "GAS_DANGER") {
-      alertMessage = "🔥 Gas Leak Detected!";
-      alertType = "Gas";
-    }
-    else if (msg === "FLAME_DETECTED") {
-      alertMessage = "🔥 Fire Detected!";
-      alertType = "Flame";
-    }
-    else if (msg === "TEMP_HIGH") {
-      alertMessage = "🌡 High Temperature!";
-      alertType = "Temperature";
-    }
-    else if (msg === "FALL_DETECTED") {
-      alertMessage = "⚠️ Fall Detected!";
-      alertType = "Fall";
-    }
-    else {
-      return ;
-    }
-
-    const newAlert = {
-      id: Date.now(),
-      type: alertType,
-      message: alertMessage,
-      timestamp: new Date(),
-      severity: "danger",
-    };
-
-    if (setAlertList) {
-      setAlertList(prev => [newAlert, ...prev.slice(0, 10)]);
-    }
-  }
-
-  // 🔥 LIVE SENSOR DATA
-  if (topic === "iot/sensor/data") {
-    try {
-      const data = JSON.parse(message.toString());
-
-      // 👉 combine motion properly
-      const motion = Math.sqrt(
-        (data.ax || 0) * (data.ax || 0) +
-        (data.ay || 0) * (data.ay || 0) +
-        (data.az || 0) * (data.az || 0)
-      );
-
-      setSensors({
-        temperature: data.temp,
-        humidity: data.humidity,
-        gasLevels: data.gas,
-        motion: motion,
-        flame: data.flame,
-        lastUpdate: new Date(),
+      client.subscribe("iot/alerts", (error) => {
+        if (error) console.error("MQTT subscribe error for iot/alerts", error);
       });
 
-    } catch (err) {
-      console.error("MQTT parse error", err);
-    }
-  }
-});
+      client.subscribe("iot/sensor/data", (error) => {
+        if (error) console.error("MQTT subscribe error for iot/sensor/data", error);
+      });
+    });
+
+    client.on("reconnect", () => {
+      if (!isActive) return;
+
+      console.log("Reconnecting to MQTT");
+      setMqttStatus("reconnecting");
+    });
+
+    client.on("error", (error) => {
+      if (!isActive) return;
+
+      console.error("MQTT error", error);
+      setMqttStatus("error");
+      setMqttError(error?.message || "MQTT connection error");
+    });
+
+    client.on("message", (topic, message) => {
+      if (!isActive) return;
+
+      if (topic === "iot/alerts") {
+        const msg = message.toString();
+
+        let alertMessage = "";
+        let alertType = "";
+
+        if (msg === "GAS_DANGER") {
+          alertMessage = "🔥 Gas Leak Detected!";
+          alertType = "Gas";
+        } else if (msg === "FLAME_DETECTED") {
+          alertMessage = "🔥 Fire Detected!";
+          alertType = "Flame";
+        } else if (msg === "TEMP_HIGH") {
+          alertMessage = "🌡 High Temperature!";
+          alertType = "Temperature";
+        } else if (msg === "FALL_DETECTED") {
+          alertMessage = "⚠️ Fall Detected!";
+          alertType = "Fall";
+        } else {
+          return;
+        }
+
+        const newAlert = {
+          id: Date.now(),
+          type: alertType,
+          message: alertMessage,
+          timestamp: new Date(),
+          severity: "danger",
+        };
+
+        if (setAlertList) {
+          setAlertList((prev) => [newAlert, ...prev.slice(0, 10)]);
+        }
+      }
+
+      if (topic === "iot/sensor/data") {
+        try {
+          const data = JSON.parse(message.toString());
+
+          const motion = Math.sqrt(
+            (data.ax || 0) * (data.ax || 0) +
+              (data.ay || 0) * (data.ay || 0) +
+              (data.az || 0) * (data.az || 0)
+          );
+
+          setSensors({
+            temperature: data.temp,
+            humidity: data.humidity,
+            gasLevels: data.gas,
+            motion: motion,
+            flame: data.flame,
+            lastUpdate: new Date(),
+          });
+        } catch (err) {
+          console.error("MQTT parse error", err);
+        }
+      }
+    });
+
     return () => {
-      client.end();
+      isActive = false;
+
+      if (client) {
+        client.end(true);
+      }
     };
   }, []);
 
@@ -456,6 +497,10 @@ export default function LiveSensorDataPanel({ setAlertList, setSensorValues }) {
           {fetchError ? "Disconnected" : isFetching ? "Updating..." : "Connected"}
         </p>
         <p className="text-xs text-gray-500 mt-2">{statusMessage}</p>
+        <p className={`text-xs mt-2 ${mqttError ? COLOR.DANGER_TEXT : COLOR.SAFE_TEXT}`}>
+          MQTT: {mqttStatus === "connected" ? "Connected" : mqttStatus === "reconnecting" ? "Reconnecting" : mqttStatus === "error" ? "Offline" : "Connecting"}
+        </p>
+        {mqttError ? <p className="text-xs text-gray-500 mt-1">{mqttError}</p> : null}
       </Card>
 
     </div>
